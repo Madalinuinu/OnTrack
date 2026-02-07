@@ -85,16 +85,6 @@ fun CreateSystemScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             OutlinedTextField(
-                value = uiState.systemName,
-                onValueChange = viewModel::updateName,
-                label = { Text("System name") },
-                placeholder = { Text("e.g. Morning Routine") },
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth()
-            )
-            Spacer(modifier = Modifier.height(12.dp))
-
-            OutlinedTextField(
                 value = uiState.systemGoal,
                 onValueChange = viewModel::updateGoal,
                 label = { Text("Goal") },
@@ -122,7 +112,7 @@ fun CreateSystemScreen(
 
             if (uiState.habits.isEmpty()) {
                 Text(
-                    text = "No habits yet. Add at least one.",
+                    text = "Add at least one habit (required).",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -148,9 +138,7 @@ fun CreateSystemScreen(
 
             Button(
                 onClick = viewModel::createSystem,
-                enabled = !uiState.isSaving &&
-                    uiState.systemName.isNotBlank() &&
-                    uiState.systemGoal.isNotBlank(),
+                enabled = !uiState.isSaving && uiState.systemGoal.isNotBlank() && uiState.habits.isNotEmpty(),
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp)

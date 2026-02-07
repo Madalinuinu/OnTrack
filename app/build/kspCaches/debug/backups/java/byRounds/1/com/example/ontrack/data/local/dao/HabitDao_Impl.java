@@ -3,9 +3,11 @@ package com.example.ontrack.data.local.dao;
 import android.database.Cursor;
 import androidx.annotation.NonNull;
 import androidx.room.CoroutinesRoom;
+import androidx.room.EntityDeletionOrUpdateAdapter;
 import androidx.room.EntityInsertionAdapter;
 import androidx.room.RoomDatabase;
 import androidx.room.RoomSQLiteQuery;
+import androidx.room.SharedSQLiteStatement;
 import androidx.room.util.CursorUtil;
 import androidx.room.util.DBUtil;
 import androidx.sqlite.db.SupportSQLiteStatement;
@@ -36,6 +38,10 @@ public final class HabitDao_Impl implements HabitDao {
 
   private final FrequencyTypeConverter __frequencyTypeConverter = new FrequencyTypeConverter();
 
+  private final EntityDeletionOrUpdateAdapter<HabitEntity> __updateAdapterOfHabitEntity;
+
+  private final SharedSQLiteStatement __preparedStmtOfDeleteBySystemId;
+
   public HabitDao_Impl(@NonNull final RoomDatabase __db) {
     this.__db = __db;
     this.__insertionAdapterOfHabitEntity = new EntityInsertionAdapter<HabitEntity>(__db) {
@@ -56,6 +62,33 @@ public final class HabitDao_Impl implements HabitDao {
         statement.bindLong(5, entity.getTargetCount());
       }
     };
+    this.__updateAdapterOfHabitEntity = new EntityDeletionOrUpdateAdapter<HabitEntity>(__db) {
+      @Override
+      @NonNull
+      protected String createQuery() {
+        return "UPDATE OR ABORT `habits` SET `id` = ?,`systemId` = ?,`title` = ?,`frequencyType` = ?,`targetCount` = ? WHERE `id` = ?";
+      }
+
+      @Override
+      protected void bind(@NonNull final SupportSQLiteStatement statement,
+          @NonNull final HabitEntity entity) {
+        statement.bindLong(1, entity.getId());
+        statement.bindLong(2, entity.getSystemId());
+        statement.bindString(3, entity.getTitle());
+        final String _tmp = __frequencyTypeConverter.toStorage(entity.getFrequencyType());
+        statement.bindString(4, _tmp);
+        statement.bindLong(5, entity.getTargetCount());
+        statement.bindLong(6, entity.getId());
+      }
+    };
+    this.__preparedStmtOfDeleteBySystemId = new SharedSQLiteStatement(__db) {
+      @Override
+      @NonNull
+      public String createQuery() {
+        final String _query = "DELETE FROM habits WHERE systemId = ?";
+        return _query;
+      }
+    };
   }
 
   @Override
@@ -72,6 +105,50 @@ public final class HabitDao_Impl implements HabitDao {
           return Unit.INSTANCE;
         } finally {
           __db.endTransaction();
+        }
+      }
+    }, $completion);
+  }
+
+  @Override
+  public Object updateHabit(final HabitEntity habit, final Continuation<? super Unit> $completion) {
+    return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
+      @Override
+      @NonNull
+      public Unit call() throws Exception {
+        __db.beginTransaction();
+        try {
+          __updateAdapterOfHabitEntity.handle(habit);
+          __db.setTransactionSuccessful();
+          return Unit.INSTANCE;
+        } finally {
+          __db.endTransaction();
+        }
+      }
+    }, $completion);
+  }
+
+  @Override
+  public Object deleteBySystemId(final long systemId,
+      final Continuation<? super Unit> $completion) {
+    return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
+      @Override
+      @NonNull
+      public Unit call() throws Exception {
+        final SupportSQLiteStatement _stmt = __preparedStmtOfDeleteBySystemId.acquire();
+        int _argIndex = 1;
+        _stmt.bindLong(_argIndex, systemId);
+        try {
+          __db.beginTransaction();
+          try {
+            _stmt.executeUpdateDelete();
+            __db.setTransactionSuccessful();
+            return Unit.INSTANCE;
+          } finally {
+            __db.endTransaction();
+          }
+        } finally {
+          __preparedStmtOfDeleteBySystemId.release(_stmt);
         }
       }
     }, $completion);

@@ -21,7 +21,6 @@ data class HabitItem(
 )
 
 data class CreateSystemUiState(
-    val systemName: String = "",
     val systemGoal: String = "",
     val duration: String = "",
     val habits: List<HabitItem> = emptyList(),
@@ -37,12 +36,9 @@ class CreateSystemViewModel(
     private val _uiState = MutableStateFlow(CreateSystemUiState())
     val uiState: StateFlow<CreateSystemUiState> = _uiState.asStateFlow()
 
-    fun updateName(name: String) {
-        _uiState.value = _uiState.value.copy(systemName = name)
-    }
-
     fun updateGoal(goal: String) {
-        _uiState.value = _uiState.value.copy(systemGoal = goal)
+        val capitalized = goal.replaceFirstChar { if (it.isLowerCase()) it.uppercaseChar() else it }
+        _uiState.value = _uiState.value.copy(systemGoal = capitalized)
     }
 
     fun updateDuration(duration: String) {
@@ -67,19 +63,21 @@ class CreateSystemViewModel(
 
     fun createSystem() {
         val state = _uiState.value
-        val name = state.systemName.trim()
         val goal = state.systemGoal.trim()
-        if (name.isBlank() || goal.isBlank()) return
+        if (goal.isBlank()) return
 
+        if (state.habits.isEmpty()) return
         viewModelScope.launch {
             _uiState.value = state.copy(isSaving = true)
             withContext(Dispatchers.IO) {
                 val durationInt = state.duration.trim().toIntOrNull()
+                val sortOrder = systemDao.nextSortOrder()
                 val system = SystemEntity(
-                    name = name,
+                    name = goal,
                     goal = goal,
                     duration = durationInt,
-                    startDate = System.currentTimeMillis()
+                    startDate = System.currentTimeMillis(),
+                    sortOrder = sortOrder
                 )
                 val systemId = systemDao.insertSystem(system)
                 val habits = state.habits.map { item ->
@@ -90,9 +88,7 @@ class CreateSystemViewModel(
                         targetCount = item.targetCount.coerceIn(1, 7)
                     )
                 }
-                if (habits.isNotEmpty()) {
-                    habitDao.insertHabits(habits)
-                }
+                habitDao.insertHabits(habits)
             }
             _uiState.value = _uiState.value.copy(isSaving = false, navigateBack = true)
         }

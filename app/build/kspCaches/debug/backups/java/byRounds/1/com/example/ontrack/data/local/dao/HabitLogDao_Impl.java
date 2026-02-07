@@ -11,13 +11,17 @@ import androidx.room.RoomSQLiteQuery;
 import androidx.room.SharedSQLiteStatement;
 import androidx.room.util.CursorUtil;
 import androidx.room.util.DBUtil;
+import androidx.room.util.StringUtil;
 import androidx.sqlite.db.SupportSQLiteStatement;
 import com.example.ontrack.data.local.entity.HabitLogEntity;
 import java.lang.Class;
 import java.lang.Exception;
+import java.lang.Integer;
+import java.lang.Long;
 import java.lang.Object;
 import java.lang.Override;
 import java.lang.String;
+import java.lang.StringBuilder;
 import java.lang.SuppressWarnings;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -37,13 +41,15 @@ public final class HabitLogDao_Impl implements HabitLogDao {
 
   private final SharedSQLiteStatement __preparedStmtOfUpdateCompletion;
 
+  private final SharedSQLiteStatement __preparedStmtOfClearAllLogs;
+
   public HabitLogDao_Impl(@NonNull final RoomDatabase __db) {
     this.__db = __db;
     this.__insertionAdapterOfHabitLogEntity = new EntityInsertionAdapter<HabitLogEntity>(__db) {
       @Override
       @NonNull
       protected String createQuery() {
-        return "INSERT OR REPLACE INTO `habit_logs` (`id`,`habitId`,`date`,`isCompleted`) VALUES (nullif(?, 0),?,?,?)";
+        return "INSERT OR REPLACE INTO `habit_logs` (`id`,`habitId`,`date`,`isCompleted`,`durationMinutes`) VALUES (nullif(?, 0),?,?,?,?)";
       }
 
       @Override
@@ -54,13 +60,26 @@ public final class HabitLogDao_Impl implements HabitLogDao {
         statement.bindLong(3, entity.getDate());
         final int _tmp = entity.isCompleted() ? 1 : 0;
         statement.bindLong(4, _tmp);
+        if (entity.getDurationMinutes() == null) {
+          statement.bindNull(5);
+        } else {
+          statement.bindLong(5, entity.getDurationMinutes());
+        }
       }
     };
     this.__preparedStmtOfUpdateCompletion = new SharedSQLiteStatement(__db) {
       @Override
       @NonNull
       public String createQuery() {
-        final String _query = "UPDATE habit_logs SET isCompleted = ? WHERE habitId = ? AND date = ?";
+        final String _query = "UPDATE habit_logs SET isCompleted = ?, durationMinutes = ? WHERE habitId = ? AND date = ?";
+        return _query;
+      }
+    };
+    this.__preparedStmtOfClearAllLogs = new SharedSQLiteStatement(__db) {
+      @Override
+      @NonNull
+      public String createQuery() {
+        final String _query = "DELETE FROM habit_logs";
         return _query;
       }
     };
@@ -86,7 +105,7 @@ public final class HabitLogDao_Impl implements HabitLogDao {
 
   @Override
   public Object updateCompletion(final long habitId, final long date, final boolean completed,
-      final Continuation<? super Unit> $completion) {
+      final Integer durationMinutes, final Continuation<? super Unit> $completion) {
     return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
       @Override
       @NonNull
@@ -96,8 +115,14 @@ public final class HabitLogDao_Impl implements HabitLogDao {
         final int _tmp = completed ? 1 : 0;
         _stmt.bindLong(_argIndex, _tmp);
         _argIndex = 2;
-        _stmt.bindLong(_argIndex, habitId);
+        if (durationMinutes == null) {
+          _stmt.bindNull(_argIndex);
+        } else {
+          _stmt.bindLong(_argIndex, durationMinutes);
+        }
         _argIndex = 3;
+        _stmt.bindLong(_argIndex, habitId);
+        _argIndex = 4;
         _stmt.bindLong(_argIndex, date);
         try {
           __db.beginTransaction();
@@ -110,6 +135,29 @@ public final class HabitLogDao_Impl implements HabitLogDao {
           }
         } finally {
           __preparedStmtOfUpdateCompletion.release(_stmt);
+        }
+      }
+    }, $completion);
+  }
+
+  @Override
+  public Object clearAllLogs(final Continuation<? super Unit> $completion) {
+    return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
+      @Override
+      @NonNull
+      public Unit call() throws Exception {
+        final SupportSQLiteStatement _stmt = __preparedStmtOfClearAllLogs.acquire();
+        try {
+          __db.beginTransaction();
+          try {
+            _stmt.executeUpdateDelete();
+            __db.setTransactionSuccessful();
+            return Unit.INSTANCE;
+          } finally {
+            __db.endTransaction();
+          }
+        } finally {
+          __preparedStmtOfClearAllLogs.release(_stmt);
         }
       }
     }, $completion);
@@ -134,6 +182,7 @@ public final class HabitLogDao_Impl implements HabitLogDao {
           final int _cursorIndexOfHabitId = CursorUtil.getColumnIndexOrThrow(_cursor, "habitId");
           final int _cursorIndexOfDate = CursorUtil.getColumnIndexOrThrow(_cursor, "date");
           final int _cursorIndexOfIsCompleted = CursorUtil.getColumnIndexOrThrow(_cursor, "isCompleted");
+          final int _cursorIndexOfDurationMinutes = CursorUtil.getColumnIndexOrThrow(_cursor, "durationMinutes");
           final List<HabitLogEntity> _result = new ArrayList<HabitLogEntity>(_cursor.getCount());
           while (_cursor.moveToNext()) {
             final HabitLogEntity _item;
@@ -147,7 +196,13 @@ public final class HabitLogDao_Impl implements HabitLogDao {
             final int _tmp;
             _tmp = _cursor.getInt(_cursorIndexOfIsCompleted);
             _tmpIsCompleted = _tmp != 0;
-            _item = new HabitLogEntity(_tmpId,_tmpHabitId,_tmpDate,_tmpIsCompleted);
+            final Integer _tmpDurationMinutes;
+            if (_cursor.isNull(_cursorIndexOfDurationMinutes)) {
+              _tmpDurationMinutes = null;
+            } else {
+              _tmpDurationMinutes = _cursor.getInt(_cursorIndexOfDurationMinutes);
+            }
+            _item = new HabitLogEntity(_tmpId,_tmpHabitId,_tmpDate,_tmpIsCompleted,_tmpDurationMinutes);
             _result.add(_item);
           }
           return _result;
@@ -183,6 +238,7 @@ public final class HabitLogDao_Impl implements HabitLogDao {
           final int _cursorIndexOfHabitId = CursorUtil.getColumnIndexOrThrow(_cursor, "habitId");
           final int _cursorIndexOfDate = CursorUtil.getColumnIndexOrThrow(_cursor, "date");
           final int _cursorIndexOfIsCompleted = CursorUtil.getColumnIndexOrThrow(_cursor, "isCompleted");
+          final int _cursorIndexOfDurationMinutes = CursorUtil.getColumnIndexOrThrow(_cursor, "durationMinutes");
           final HabitLogEntity _result;
           if (_cursor.moveToFirst()) {
             final long _tmpId;
@@ -195,7 +251,13 @@ public final class HabitLogDao_Impl implements HabitLogDao {
             final int _tmp;
             _tmp = _cursor.getInt(_cursorIndexOfIsCompleted);
             _tmpIsCompleted = _tmp != 0;
-            _result = new HabitLogEntity(_tmpId,_tmpHabitId,_tmpDate,_tmpIsCompleted);
+            final Integer _tmpDurationMinutes;
+            if (_cursor.isNull(_cursorIndexOfDurationMinutes)) {
+              _tmpDurationMinutes = null;
+            } else {
+              _tmpDurationMinutes = _cursor.getInt(_cursorIndexOfDurationMinutes);
+            }
+            _result = new HabitLogEntity(_tmpId,_tmpHabitId,_tmpDate,_tmpIsCompleted,_tmpDurationMinutes);
           } else {
             _result = null;
           }
@@ -209,9 +271,46 @@ public final class HabitLogDao_Impl implements HabitLogDao {
   }
 
   @Override
+  public Object clearLogsForHabits(final List<Long> habitIds,
+      final Continuation<? super Unit> $completion) {
+    return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
+      @Override
+      @NonNull
+      public Unit call() throws Exception {
+        final StringBuilder _stringBuilder = StringUtil.newStringBuilder();
+        _stringBuilder.append("DELETE FROM habit_logs WHERE habitId IN (");
+        final int _inputSize = habitIds.size();
+        StringUtil.appendPlaceholders(_stringBuilder, _inputSize);
+        _stringBuilder.append(")");
+        final String _sql = _stringBuilder.toString();
+        final SupportSQLiteStatement _stmt = __db.compileStatement(_sql);
+        int _argIndex = 1;
+        for (long _item : habitIds) {
+          _stmt.bindLong(_argIndex, _item);
+          _argIndex++;
+        }
+        __db.beginTransaction();
+        try {
+          _stmt.executeUpdateDelete();
+          __db.setTransactionSuccessful();
+          return Unit.INSTANCE;
+        } finally {
+          __db.endTransaction();
+        }
+      }
+    }, $completion);
+  }
+
+  @Override
   public Object toggleHabitCompletion(final long habitId, final long date,
       final Continuation<? super Unit> $completion) {
     return HabitLogDao.DefaultImpls.toggleHabitCompletion(HabitLogDao_Impl.this, habitId, date, $completion);
+  }
+
+  @Override
+  public Object completeWithDuration(final long habitId, final long date,
+      final Integer durationMinutes, final Continuation<? super Unit> $completion) {
+    return HabitLogDao.DefaultImpls.completeWithDuration(HabitLogDao_Impl.this, habitId, date, durationMinutes, $completion);
   }
 
   @NonNull

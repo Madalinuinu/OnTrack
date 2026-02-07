@@ -17,6 +17,7 @@ private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(na
 private object Keys {
     val IS_FIRST_LAUNCH = booleanPreferencesKey("is_first_launch")
     val USER_NAME = stringPreferencesKey("user_name")
+    val DARK_MODE = booleanPreferencesKey("dark_mode")
     val CURRENT_STREAK = intPreferencesKey("current_streak")
     val LAST_STREAK_DATE = longPreferencesKey("last_streak_date")
 }
@@ -33,6 +34,10 @@ class UserPreferences(context: Context) {
         prefs[Keys.USER_NAME] ?: ""
     }
 
+    val darkMode: Flow<Boolean> = dataStore.data.map { prefs ->
+        prefs[Keys.DARK_MODE] ?: false
+    }
+
     val currentStreak: Flow<Int> = dataStore.data.map { prefs ->
         prefs[Keys.CURRENT_STREAK] ?: 0
     }
@@ -45,6 +50,12 @@ class UserPreferences(context: Context) {
         dataStore.edit { prefs ->
             prefs[Keys.IS_FIRST_LAUNCH] = false
             prefs[Keys.USER_NAME] = name
+        }
+    }
+
+    suspend fun setDarkMode(enabled: Boolean) {
+        dataStore.edit { prefs ->
+            prefs[Keys.DARK_MODE] = enabled
         }
     }
 

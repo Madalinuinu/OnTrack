@@ -23,5 +23,7 @@ data class HabitLogEntity(
     val habitId: Long,
     /** Date as epoch day (days since Unix epoch) for simple range queries. */
     val date: Long,
-    val isCompleted: Boolean
+    val isCompleted: Boolean,
+    /** Time spent in minutes (e.g. from timer); null if not tracked. */
+    val durationMinutes: Int? = null
 )

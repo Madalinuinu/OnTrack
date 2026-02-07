@@ -1,9 +1,9 @@
 -- Merging decision tree log ---
 manifest
-ADDED from C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:2:1-28:12
-INJECTED from C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:2:1-28:12
-INJECTED from C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:2:1-28:12
-INJECTED from C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:2:1-28:12
+ADDED from C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:2:1-30:12
+INJECTED from C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:2:1-30:12
+INJECTED from C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:2:1-30:12
+INJECTED from C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:2:1-30:12
 MERGED from [androidx.navigation:navigation-common:2.8.4] C:\Users\Madalin\.gradle\caches\8.13\transforms\1bf9c137d4cacbb99de222f133b924a7\transformed\navigation-common-2.8.4\AndroidManifest.xml:17:1-22:12
 MERGED from [androidx.navigation:navigation-runtime:2.8.4] C:\Users\Madalin\.gradle\caches\8.13\transforms\fc4385050c549e053d522e823e213fa7\transformed\navigation-runtime-2.8.4\AndroidManifest.xml:17:1-22:12
 MERGED from [androidx.navigation:navigation-common-ktx:2.8.4] C:\Users\Madalin\.gradle\caches\8.13\transforms\abb1236fed790e243b807601fd28fa13\transformed\navigation-common-ktx-2.8.4\AndroidManifest.xml:2:1-7:12
@@ -79,9 +79,13 @@ MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] C:\Users\Ma
 		INJECTED from C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml
 	xmlns:android
 		ADDED from C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:2:11-69
+uses-permission#android.permission.POST_NOTIFICATIONS
+ADDED from C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:5:5-77
+	android:name
+		ADDED from C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:5:22-74
 application
-ADDED from C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:5:5-26:19
-INJECTED from C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:5:5-26:19
+ADDED from C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:7:5-28:19
+INJECTED from C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:7:5-28:19
 MERGED from [androidx.compose.ui:ui-tooling-android:1.9.2] C:\Users\Madalin\.gradle\caches\8.13\transforms\29642cad362bff95f9b016a783034dba\transformed\ui-tooling\AndroidManifest.xml:22:5-26:19
 MERGED from [androidx.compose.ui:ui-tooling-android:1.9.2] C:\Users\Madalin\.gradle\caches\8.13\transforms\29642cad362bff95f9b016a783034dba\transformed\ui-tooling\AndroidManifest.xml:22:5-26:19
 MERGED from [androidx.compose.ui:ui-test-manifest:1.9.2] C:\Users\Madalin\.gradle\caches\8.13\transforms\3cce7efb1782d10b5532428eb1fc7da5\transformed\ui-test-manifest-1.9.2\AndroidManifest.xml:22:5-27:19
@@ -105,43 +109,43 @@ MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] C:\Users\Ma
 	android:appComponentFactory
 		ADDED from [androidx.core:core:1.17.0] C:\Users\Madalin\.gradle\caches\8.13\transforms\030149823c4471db71bbbbe459014f5c\transformed\core-1.17.0\AndroidManifest.xml:28:18-86
 	android:supportsRtl
-		ADDED from C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:13:9-35
+		ADDED from C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:15:9-35
 	android:label
-		ADDED from C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:11:9-41
+		ADDED from C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:13:9-41
 	android:fullBackupContent
-		ADDED from C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:9:9-54
+		ADDED from C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:11:9-54
 	android:roundIcon
-		ADDED from C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:12:9-54
+		ADDED from C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:14:9-54
 	android:icon
-		ADDED from C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:10:9-43
+		ADDED from C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:12:9-43
 	android:allowBackup
-		ADDED from C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:7:9-35
+		ADDED from C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:9:9-35
 	android:theme
-		ADDED from C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:14:9-45
+		ADDED from C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:16:9-45
 	android:dataExtractionRules
-		ADDED from C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:8:9-65
+		ADDED from C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:10:9-65
 	android:name
-		ADDED from C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:6:9-43
+		ADDED from C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:8:9-43
 activity#com.example.ontrack.MainActivity
-ADDED from C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:15:9-25:20
+ADDED from C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:17:9-27:20
 	android:label
-		ADDED from C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:18:13-45
+		ADDED from C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:20:13-45
 	android:exported
-		ADDED from C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:17:13-36
+		ADDED from C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:19:13-36
 	android:theme
-		ADDED from C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:19:13-49
+		ADDED from C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:21:13-49
 	android:name
-		ADDED from C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:16:13-41
+		ADDED from C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:18:13-41
 intent-filter#action:name:android.intent.action.MAIN+category:name:android.intent.category.LAUNCHER
-ADDED from C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:20:13-24:29
+ADDED from C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:22:13-26:29
 action#android.intent.action.MAIN
-ADDED from C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:21:17-69
+ADDED from C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:23:17-69
 	android:name
-		ADDED from C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:21:25-66
+		ADDED from C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:23:25-66
 category#android.intent.category.LAUNCHER
-ADDED from C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:23:17-77
+ADDED from C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:25:17-77
 	android:name
-		ADDED from C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:23:27-74
+		ADDED from C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:25:27-74
 uses-sdk
 INJECTED from C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml reason: use-sdk injection requested
 INJECTED from C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml

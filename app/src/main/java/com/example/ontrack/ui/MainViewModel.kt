@@ -12,11 +12,12 @@ class MainViewModel(
     private val userPreferences: UserPreferences
 ) : ViewModel() {
 
-    val isFirstLaunch: StateFlow<Boolean> = userPreferences.isFirstLaunch
+    /** null = preferences not loaded yet, true = show onboarding, false = show app */
+    val isFirstLaunch: StateFlow<Boolean?> = userPreferences.isFirstLaunch
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = true
+            initialValue = null
         )
 
     val userName: StateFlow<String> = userPreferences.userName
@@ -25,6 +26,19 @@ class MainViewModel(
             started = SharingStarted.WhileSubscribed(5_000),
             initialValue = ""
         )
+
+    val darkMode: StateFlow<Boolean> = userPreferences.darkMode
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = false
+        )
+
+    fun toggleDarkMode() {
+        viewModelScope.launch {
+            userPreferences.setDarkMode(!darkMode.value)
+        }
+    }
 
     fun completeOnboarding(name: String) {
         viewModelScope.launch {

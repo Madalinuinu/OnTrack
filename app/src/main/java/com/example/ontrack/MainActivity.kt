@@ -7,12 +7,8 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
@@ -22,19 +18,24 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.ontrack.ui.MainViewModel
 import com.example.ontrack.ui.MainViewModelFactory
-import com.example.ontrack.ui.components.LoadingScreen
 import com.example.ontrack.ui.createsystem.CreateSystemScreen
 import com.example.ontrack.ui.createsystem.CreateSystemViewModel
 import com.example.ontrack.ui.createsystem.CreateSystemViewModelFactory
+import com.example.ontrack.ui.editsystem.EditSystemScreen
+import com.example.ontrack.ui.editsystem.EditSystemViewModel
+import com.example.ontrack.ui.editsystem.EditSystemViewModelFactory
+import com.example.ontrack.ui.activity.ActivityScreen
+import com.example.ontrack.ui.activity.ActivityViewModel
+import com.example.ontrack.ui.activity.ActivityViewModelFactory
 import com.example.ontrack.ui.home.HomeScreen
 import com.example.ontrack.ui.home.HomeViewModel
 import com.example.ontrack.ui.home.HomeViewModelFactory
 import com.example.ontrack.ui.onboarding.OnboardingScreen
 import com.example.ontrack.ui.theme.OnTrackTheme
+import com.example.ontrack.ui.components.LoadingScreen
 import com.example.ontrack.ui.tracker.TrackerScreen
 import com.example.ontrack.ui.tracker.TrackerViewModel
 import com.example.ontrack.ui.tracker.TrackerViewModelFactory
-import kotlinx.coroutines.delay
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -42,32 +43,24 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         val application = application as OnTrackApplication
-        val mainViewModel: MainViewModel = androidx.lifecycle.ViewModelProvider(
-            this,
-            MainViewModelFactory(application.userPreferences)
-        )[MainViewModel::class.java]
 
         setContent {
-            OnTrackTheme {
-                var isLoading by remember { mutableStateOf(true) }
-                LaunchedEffect(Unit) {
-                    delay(1_200)
-                    isLoading = false
-                }
+            val mainViewModel: MainViewModel = viewModel(
+                factory = MainViewModelFactory(application.userPreferences)
+            )
+            val isFirstLaunch by mainViewModel.isFirstLaunch.collectAsState(initial = null)
+            val userName by mainViewModel.userName.collectAsState(initial = "")
+            val darkMode by mainViewModel.darkMode.collectAsState(initial = false)
 
-                if (isLoading) {
-                    LoadingScreen(modifier = Modifier.fillMaxSize())
-                } else {
-                    val isFirstLaunch by mainViewModel.isFirstLaunch.collectAsState(initial = true)
-                    val userName by mainViewModel.userName.collectAsState(initial = "")
-
-                    Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    if (isFirstLaunch) {
-                        OnboardingScreen(
+            OnTrackTheme(darkTheme = darkMode) {
+                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                    when (isFirstLaunch) {
+                        null -> LoadingScreen(modifier = Modifier.padding(innerPadding))
+                        true -> OnboardingScreen(
                             onStartClick = { name -> mainViewModel.completeOnboarding(name) },
                             modifier = Modifier.padding(innerPadding)
                         )
-                    } else {
+                        false -> {
                         val navController = rememberNavController()
                         NavHost(
                             navController = navController,
@@ -84,9 +77,17 @@ class MainActivity : ComponentActivity() {
                                 HomeScreen(
                                     viewModel = homeViewModel,
                                     userName = userName,
+                                    darkMode = darkMode,
+                                    onToggleDarkMode = { mainViewModel.toggleDarkMode() },
                                     onCreateSystemClick = { navController.navigate("create_system") },
-                                    onSystemClick = { systemId ->
+                                    onOpenSystemClick = { systemId ->
                                         navController.navigate("tracker/$systemId")
+                                    },
+                                    onActivityClick = { systemId ->
+                                        navController.navigate("activity/$systemId")
+                                    },
+                                    onEditSystemClick = { systemId ->
+                                        navController.navigate("edit_system/$systemId")
                                     }
                                 )
                             }
@@ -96,6 +97,25 @@ class MainActivity : ComponentActivity() {
                                 )
                                 CreateSystemScreen(
                                     viewModel = createViewModel,
+                                    onNavigateBack = { navController.popBackStack() }
+                                )
+                            }
+                            composable(
+                                route = "edit_system/{systemId}",
+                                arguments = listOf(
+                                    navArgument("systemId") { type = NavType.LongType }
+                                )
+                            ) { backStackEntry ->
+                                val editSystemId = backStackEntry.arguments?.getLong("systemId") ?: 0L
+                                val editViewModel: EditSystemViewModel = viewModel(
+                                    factory = EditSystemViewModelFactory(
+                                        systemId = editSystemId,
+                                        systemDao = application.database.systemDao(),
+                                        habitDao = application.database.habitDao()
+                                    )
+                                )
+                                EditSystemScreen(
+                                    viewModel = editViewModel,
                                     onNavigateBack = { navController.popBackStack() }
                                 )
                             }
@@ -115,13 +135,35 @@ class MainActivity : ComponentActivity() {
                                 )
                                 TrackerScreen(
                                     viewModel = trackerViewModel,
+                                    onNavigateBack = { navController.popBackStack() },
+                                    onActivityClick = { navController.navigate("activity/$systemId") }
+                                )
+                            }
+                            composable(
+                                route = "activity/{systemId}",
+                                arguments = listOf(
+                                    navArgument("systemId") { type = NavType.LongType }
+                                )
+                            ) { backStackEntry ->
+                                val systemId = backStackEntry.arguments?.getLong("systemId") ?: 0L
+                                val activityViewModel: ActivityViewModel = viewModel(
+                                    factory = ActivityViewModelFactory(
+                                        systemId = systemId,
+                                        systemDao = application.database.systemDao(),
+                                        habitDao = application.database.habitDao(),
+                                        habitLogDao = application.database.habitLogDao(),
+                                        streakManager = application.streakManager
+                                    )
+                                )
+                                ActivityScreen(
+                                    viewModel = activityViewModel,
                                     onNavigateBack = { navController.popBackStack() }
                                 )
                             }
                         }
                     }
                 }
-                }
+            }
             }
         }
     }

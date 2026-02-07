@@ -31,11 +31,14 @@ import com.example.ontrack.data.local.entity.FrequencyType
 fun AddHabitSheet(
     onDismiss: () -> Unit,
     onAdd: (HabitItem) -> Unit,
+    initial: HabitItem? = null,
+    onUpdate: ((HabitItem) -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
-    var title by remember { mutableStateOf("") }
-    var frequency by remember { mutableStateOf(FrequencyType.DAILY) }
-    var timesPerWeek by remember { mutableStateOf(3) }
+    val isEdit = initial != null && onUpdate != null
+    var title by remember(initial) { mutableStateOf(initial?.title ?: "") }
+    var frequency by remember(initial) { mutableStateOf(initial?.frequencyType ?: FrequencyType.DAILY) }
+    var timesPerWeek by remember(initial) { mutableStateOf(initial?.targetCount?.coerceIn(1, 7) ?: 3) }
 
     Column(
         modifier = modifier
@@ -44,7 +47,7 @@ fun AddHabitSheet(
             .verticalScroll(rememberScrollState())
     ) {
         Text(
-            text = "Add Habit",
+            text = if (isEdit) "Edit Habit" else "Add Habit",
             style = MaterialTheme.typography.titleLarge
         )
         Spacer(modifier = Modifier.height(20.dp))
@@ -121,18 +124,17 @@ fun AddHabitSheet(
             Button(
                 onClick = {
                     if (title.isNotBlank()) {
-                        onAdd(
-                            HabitItem(
-                                title = title.trim(),
-                                frequencyType = frequency,
-                                targetCount = if (frequency == FrequencyType.SPECIFIC_DAYS) timesPerWeek else 1
-                            )
+                        val item = HabitItem(
+                            title = title.trim(),
+                            frequencyType = frequency,
+                            targetCount = if (frequency == FrequencyType.SPECIFIC_DAYS) timesPerWeek else 1
                         )
+                        if (isEdit) onUpdate!!(item) else onAdd(item)
                         onDismiss()
                     }
                 }
             ) {
-                Text("Add")
+                Text(if (isEdit) "Save" else "Add")
             }
         }
     }
