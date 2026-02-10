@@ -11,153 +11,190 @@
 11    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 11-->C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:5:5-77
 11-->C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:5:22-74
-12
-13    <permission
-13-->[androidx.core:core:1.17.0] C:\Users\Madalin\.gradle\caches\8.13\transforms\030149823c4471db71bbbbe459014f5c\transformed\core-1.17.0\AndroidManifest.xml:22:5-24:47
-14        android:name="com.example.ontrack.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
-14-->[androidx.core:core:1.17.0] C:\Users\Madalin\.gradle\caches\8.13\transforms\030149823c4471db71bbbbe459014f5c\transformed\core-1.17.0\AndroidManifest.xml:23:9-81
-15        android:protectionLevel="signature" />
-15-->[androidx.core:core:1.17.0] C:\Users\Madalin\.gradle\caches\8.13\transforms\030149823c4471db71bbbbe459014f5c\transformed\core-1.17.0\AndroidManifest.xml:24:9-44
-16
-17    <uses-permission android:name="com.example.ontrack.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
-17-->[androidx.core:core:1.17.0] C:\Users\Madalin\.gradle\caches\8.13\transforms\030149823c4471db71bbbbe459014f5c\transformed\core-1.17.0\AndroidManifest.xml:26:5-97
-17-->[androidx.core:core:1.17.0] C:\Users\Madalin\.gradle\caches\8.13\transforms\030149823c4471db71bbbbe459014f5c\transformed\core-1.17.0\AndroidManifest.xml:26:22-94
-18
-19    <application
-19-->C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:7:5-28:19
-20        android:name="com.example.ontrack.OnTrackApplication"
-20-->C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:8:9-43
-21        android:allowBackup="true"
-21-->C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:9:9-35
-22        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
-22-->[androidx.core:core:1.17.0] C:\Users\Madalin\.gradle\caches\8.13\transforms\030149823c4471db71bbbbe459014f5c\transformed\core-1.17.0\AndroidManifest.xml:28:18-86
-23        android:dataExtractionRules="@xml/data_extraction_rules"
-23-->C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:10:9-65
-24        android:debuggable="true"
-25        android:extractNativeLibs="false"
-26        android:fullBackupContent="@xml/backup_rules"
-26-->C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:11:9-54
-27        android:icon="@mipmap/ic_launcher"
-27-->C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:12:9-43
-28        android:label="@string/app_name"
-28-->C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:13:9-41
-29        android:roundIcon="@mipmap/ic_launcher_round"
-29-->C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:14:9-54
-30        android:supportsRtl="true"
-30-->C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:15:9-35
-31        android:testOnly="true"
-32        android:theme="@style/Theme.OnTrack" >
-32-->C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:16:9-45
-33        <activity
-33-->C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:17:9-27:20
-34            android:name="com.example.ontrack.MainActivity"
-34-->C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:18:13-41
-35            android:exported="true"
-35-->C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:19:13-36
-36            android:label="@string/app_name"
-36-->C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:20:13-45
-37            android:theme="@style/Theme.OnTrack" >
-37-->C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:21:13-49
-38            <intent-filter>
-38-->C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:22:13-26:29
-39                <action android:name="android.intent.action.MAIN" />
-39-->C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:23:17-69
-39-->C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:23:25-66
-40
-41                <category android:name="android.intent.category.LAUNCHER" />
-41-->C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:25:17-77
-41-->C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:25:27-74
-42            </intent-filter>
-43        </activity>
-44        <activity
-44-->[androidx.compose.ui:ui-tooling-android:1.9.2] C:\Users\Madalin\.gradle\caches\8.13\transforms\29642cad362bff95f9b016a783034dba\transformed\ui-tooling\AndroidManifest.xml:23:9-25:39
-45            android:name="androidx.compose.ui.tooling.PreviewActivity"
-45-->[androidx.compose.ui:ui-tooling-android:1.9.2] C:\Users\Madalin\.gradle\caches\8.13\transforms\29642cad362bff95f9b016a783034dba\transformed\ui-tooling\AndroidManifest.xml:24:13-71
-46            android:exported="true" />
-46-->[androidx.compose.ui:ui-tooling-android:1.9.2] C:\Users\Madalin\.gradle\caches\8.13\transforms\29642cad362bff95f9b016a783034dba\transformed\ui-tooling\AndroidManifest.xml:25:13-36
+12    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+12-->[com.github.LottieFiles:dotlottie-android:0.5.0] C:\Users\Madalin\.gradle\caches\8.13\transforms\9ae3cdd0e575d55c0250b840cd8cbbf6\transformed\dotlottie-android-0.5.0\AndroidManifest.xml:7:5-81
+12-->[com.github.LottieFiles:dotlottie-android:0.5.0] C:\Users\Madalin\.gradle\caches\8.13\transforms\9ae3cdd0e575d55c0250b840cd8cbbf6\transformed\dotlottie-android-0.5.0\AndroidManifest.xml:7:22-78
+13    <uses-permission android:name="android.permission.INTERNET" />
+13-->[com.github.LottieFiles:dotlottie-android:0.5.0] C:\Users\Madalin\.gradle\caches\8.13\transforms\9ae3cdd0e575d55c0250b840cd8cbbf6\transformed\dotlottie-android-0.5.0\AndroidManifest.xml:8:5-67
+13-->[com.github.LottieFiles:dotlottie-android:0.5.0] C:\Users\Madalin\.gradle\caches\8.13\transforms\9ae3cdd0e575d55c0250b840cd8cbbf6\transformed\dotlottie-android-0.5.0\AndroidManifest.xml:8:22-64
+14    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+15
+16    <permission
+16-->[androidx.core:core:1.17.0] C:\Users\Madalin\.gradle\caches\8.13\transforms\030149823c4471db71bbbbe459014f5c\transformed\core-1.17.0\AndroidManifest.xml:22:5-24:47
+17        android:name="com.example.ontrack.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+17-->[androidx.core:core:1.17.0] C:\Users\Madalin\.gradle\caches\8.13\transforms\030149823c4471db71bbbbe459014f5c\transformed\core-1.17.0\AndroidManifest.xml:23:9-81
+18        android:protectionLevel="signature" />
+18-->[androidx.core:core:1.17.0] C:\Users\Madalin\.gradle\caches\8.13\transforms\030149823c4471db71bbbbe459014f5c\transformed\core-1.17.0\AndroidManifest.xml:24:9-44
+19
+20    <uses-permission android:name="com.example.ontrack.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
+20-->[androidx.core:core:1.17.0] C:\Users\Madalin\.gradle\caches\8.13\transforms\030149823c4471db71bbbbe459014f5c\transformed\core-1.17.0\AndroidManifest.xml:26:5-97
+20-->[androidx.core:core:1.17.0] C:\Users\Madalin\.gradle\caches\8.13\transforms\030149823c4471db71bbbbe459014f5c\transformed\core-1.17.0\AndroidManifest.xml:26:22-94
+21
+22    <application
+22-->C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:7:5-43:19
+23        android:name="com.example.ontrack.OnTrackApplication"
+23-->C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:8:9-43
+24        android:allowBackup="true"
+24-->C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:9:9-35
+25        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+25-->[androidx.core:core:1.17.0] C:\Users\Madalin\.gradle\caches\8.13\transforms\030149823c4471db71bbbbe459014f5c\transformed\core-1.17.0\AndroidManifest.xml:28:18-86
+26        android:dataExtractionRules="@xml/data_extraction_rules"
+26-->C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:10:9-65
+27        android:debuggable="true"
+28        android:extractNativeLibs="false"
+29        android:fullBackupContent="@xml/backup_rules"
+29-->C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:11:9-54
+30        android:icon="@mipmap/ic_launcher"
+30-->C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:12:9-43
+31        android:label="@string/app_name"
+31-->C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:13:9-41
+32        android:roundIcon="@mipmap/ic_launcher_round"
+32-->C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:14:9-54
+33        android:supportsRtl="true"
+33-->C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:15:9-35
+34        android:testOnly="true"
+35        android:theme="@style/Theme.Splash" >
+35-->C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:16:9-44
+36        <activity
+36-->C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:17:9-27:20
+37            android:name="com.example.ontrack.SplashActivity"
+37-->C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:18:13-43
+38            android:exported="true"
+38-->C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:19:13-36
+39            android:label="@string/app_name"
+39-->C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:20:13-45
+40            android:theme="@style/Theme.Splash" >
+40-->C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:21:13-48
+41            <intent-filter>
+41-->C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:22:13-26:29
+42                <action android:name="android.intent.action.MAIN" />
+42-->C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:23:17-69
+42-->C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:23:25-66
+43
+44                <category android:name="android.intent.category.LAUNCHER" />
+44-->C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:25:17-77
+44-->C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:25:27-74
+45            </intent-filter>
+46        </activity>
 47        <activity
-47-->[androidx.compose.ui:ui-test-manifest:1.9.2] C:\Users\Madalin\.gradle\caches\8.13\transforms\3cce7efb1782d10b5532428eb1fc7da5\transformed\ui-test-manifest-1.9.2\AndroidManifest.xml:23:9-26:79
-48            android:name="androidx.activity.ComponentActivity"
-48-->[androidx.compose.ui:ui-test-manifest:1.9.2] C:\Users\Madalin\.gradle\caches\8.13\transforms\3cce7efb1782d10b5532428eb1fc7da5\transformed\ui-test-manifest-1.9.2\AndroidManifest.xml:24:13-63
-49            android:exported="true"
-49-->[androidx.compose.ui:ui-test-manifest:1.9.2] C:\Users\Madalin\.gradle\caches\8.13\transforms\3cce7efb1782d10b5532428eb1fc7da5\transformed\ui-test-manifest-1.9.2\AndroidManifest.xml:25:13-36
-50            android:theme="@android:style/Theme.Material.Light.NoActionBar" />
-50-->[androidx.compose.ui:ui-test-manifest:1.9.2] C:\Users\Madalin\.gradle\caches\8.13\transforms\3cce7efb1782d10b5532428eb1fc7da5\transformed\ui-test-manifest-1.9.2\AndroidManifest.xml:26:13-76
-51
-52        <provider
-52-->[androidx.emoji2:emoji2:1.4.0] C:\Users\Madalin\.gradle\caches\8.13\transforms\36143fad46a465b9338cedbfb9a63042\transformed\emoji2-1.4.0\AndroidManifest.xml:24:9-32:20
-53            android:name="androidx.startup.InitializationProvider"
-53-->[androidx.emoji2:emoji2:1.4.0] C:\Users\Madalin\.gradle\caches\8.13\transforms\36143fad46a465b9338cedbfb9a63042\transformed\emoji2-1.4.0\AndroidManifest.xml:25:13-67
-54            android:authorities="com.example.ontrack.androidx-startup"
-54-->[androidx.emoji2:emoji2:1.4.0] C:\Users\Madalin\.gradle\caches\8.13\transforms\36143fad46a465b9338cedbfb9a63042\transformed\emoji2-1.4.0\AndroidManifest.xml:26:13-68
-55            android:exported="false" >
-55-->[androidx.emoji2:emoji2:1.4.0] C:\Users\Madalin\.gradle\caches\8.13\transforms\36143fad46a465b9338cedbfb9a63042\transformed\emoji2-1.4.0\AndroidManifest.xml:27:13-37
-56            <meta-data
-56-->[androidx.emoji2:emoji2:1.4.0] C:\Users\Madalin\.gradle\caches\8.13\transforms\36143fad46a465b9338cedbfb9a63042\transformed\emoji2-1.4.0\AndroidManifest.xml:29:13-31:52
-57                android:name="androidx.emoji2.text.EmojiCompatInitializer"
-57-->[androidx.emoji2:emoji2:1.4.0] C:\Users\Madalin\.gradle\caches\8.13\transforms\36143fad46a465b9338cedbfb9a63042\transformed\emoji2-1.4.0\AndroidManifest.xml:30:17-75
-58                android:value="androidx.startup" />
-58-->[androidx.emoji2:emoji2:1.4.0] C:\Users\Madalin\.gradle\caches\8.13\transforms\36143fad46a465b9338cedbfb9a63042\transformed\emoji2-1.4.0\AndroidManifest.xml:31:17-49
-59            <meta-data
-59-->[androidx.lifecycle:lifecycle-process:2.10.0] C:\Users\Madalin\.gradle\caches\8.13\transforms\87ceb748463e47eaa82a1707900be776\transformed\lifecycle-process-2.10.0\AndroidManifest.xml:29:13-31:52
-60                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
-60-->[androidx.lifecycle:lifecycle-process:2.10.0] C:\Users\Madalin\.gradle\caches\8.13\transforms\87ceb748463e47eaa82a1707900be776\transformed\lifecycle-process-2.10.0\AndroidManifest.xml:30:17-78
-61                android:value="androidx.startup" />
-61-->[androidx.lifecycle:lifecycle-process:2.10.0] C:\Users\Madalin\.gradle\caches\8.13\transforms\87ceb748463e47eaa82a1707900be776\transformed\lifecycle-process-2.10.0\AndroidManifest.xml:31:17-49
-62            <meta-data
-62-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Madalin\.gradle\caches\8.13\transforms\03a2380f5a99e280f3135b0abd5edcea\transformed\profileinstaller-1.4.0\AndroidManifest.xml:29:13-31:52
-63                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
-63-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Madalin\.gradle\caches\8.13\transforms\03a2380f5a99e280f3135b0abd5edcea\transformed\profileinstaller-1.4.0\AndroidManifest.xml:30:17-85
-64                android:value="androidx.startup" />
-64-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Madalin\.gradle\caches\8.13\transforms\03a2380f5a99e280f3135b0abd5edcea\transformed\profileinstaller-1.4.0\AndroidManifest.xml:31:17-49
-65        </provider>
-66
-67        <service
-67-->[androidx.room:room-runtime:2.6.1] C:\Users\Madalin\.gradle\caches\8.13\transforms\1766a941b25367636351d74f278a257c\transformed\room-runtime-2.6.1\AndroidManifest.xml:24:9-28:63
-68            android:name="androidx.room.MultiInstanceInvalidationService"
-68-->[androidx.room:room-runtime:2.6.1] C:\Users\Madalin\.gradle\caches\8.13\transforms\1766a941b25367636351d74f278a257c\transformed\room-runtime-2.6.1\AndroidManifest.xml:25:13-74
-69            android:directBootAware="true"
-69-->[androidx.room:room-runtime:2.6.1] C:\Users\Madalin\.gradle\caches\8.13\transforms\1766a941b25367636351d74f278a257c\transformed\room-runtime-2.6.1\AndroidManifest.xml:26:13-43
-70            android:exported="false" />
-70-->[androidx.room:room-runtime:2.6.1] C:\Users\Madalin\.gradle\caches\8.13\transforms\1766a941b25367636351d74f278a257c\transformed\room-runtime-2.6.1\AndroidManifest.xml:27:13-37
-71
-72        <receiver
-72-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Madalin\.gradle\caches\8.13\transforms\03a2380f5a99e280f3135b0abd5edcea\transformed\profileinstaller-1.4.0\AndroidManifest.xml:34:9-52:20
-73            android:name="androidx.profileinstaller.ProfileInstallReceiver"
-73-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Madalin\.gradle\caches\8.13\transforms\03a2380f5a99e280f3135b0abd5edcea\transformed\profileinstaller-1.4.0\AndroidManifest.xml:35:13-76
-74            android:directBootAware="false"
-74-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Madalin\.gradle\caches\8.13\transforms\03a2380f5a99e280f3135b0abd5edcea\transformed\profileinstaller-1.4.0\AndroidManifest.xml:36:13-44
-75            android:enabled="true"
-75-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Madalin\.gradle\caches\8.13\transforms\03a2380f5a99e280f3135b0abd5edcea\transformed\profileinstaller-1.4.0\AndroidManifest.xml:37:13-35
-76            android:exported="true"
-76-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Madalin\.gradle\caches\8.13\transforms\03a2380f5a99e280f3135b0abd5edcea\transformed\profileinstaller-1.4.0\AndroidManifest.xml:38:13-36
-77            android:permission="android.permission.DUMP" >
-77-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Madalin\.gradle\caches\8.13\transforms\03a2380f5a99e280f3135b0abd5edcea\transformed\profileinstaller-1.4.0\AndroidManifest.xml:39:13-57
-78            <intent-filter>
-78-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Madalin\.gradle\caches\8.13\transforms\03a2380f5a99e280f3135b0abd5edcea\transformed\profileinstaller-1.4.0\AndroidManifest.xml:40:13-42:29
-79                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
-79-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Madalin\.gradle\caches\8.13\transforms\03a2380f5a99e280f3135b0abd5edcea\transformed\profileinstaller-1.4.0\AndroidManifest.xml:41:17-91
-79-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Madalin\.gradle\caches\8.13\transforms\03a2380f5a99e280f3135b0abd5edcea\transformed\profileinstaller-1.4.0\AndroidManifest.xml:41:25-88
-80            </intent-filter>
-81            <intent-filter>
-81-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Madalin\.gradle\caches\8.13\transforms\03a2380f5a99e280f3135b0abd5edcea\transformed\profileinstaller-1.4.0\AndroidManifest.xml:43:13-45:29
-82                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
-82-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Madalin\.gradle\caches\8.13\transforms\03a2380f5a99e280f3135b0abd5edcea\transformed\profileinstaller-1.4.0\AndroidManifest.xml:44:17-85
-82-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Madalin\.gradle\caches\8.13\transforms\03a2380f5a99e280f3135b0abd5edcea\transformed\profileinstaller-1.4.0\AndroidManifest.xml:44:25-82
-83            </intent-filter>
-84            <intent-filter>
-84-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Madalin\.gradle\caches\8.13\transforms\03a2380f5a99e280f3135b0abd5edcea\transformed\profileinstaller-1.4.0\AndroidManifest.xml:46:13-48:29
-85                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
-85-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Madalin\.gradle\caches\8.13\transforms\03a2380f5a99e280f3135b0abd5edcea\transformed\profileinstaller-1.4.0\AndroidManifest.xml:47:17-88
-85-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Madalin\.gradle\caches\8.13\transforms\03a2380f5a99e280f3135b0abd5edcea\transformed\profileinstaller-1.4.0\AndroidManifest.xml:47:25-85
-86            </intent-filter>
-87            <intent-filter>
-87-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Madalin\.gradle\caches\8.13\transforms\03a2380f5a99e280f3135b0abd5edcea\transformed\profileinstaller-1.4.0\AndroidManifest.xml:49:13-51:29
-88                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
-88-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Madalin\.gradle\caches\8.13\transforms\03a2380f5a99e280f3135b0abd5edcea\transformed\profileinstaller-1.4.0\AndroidManifest.xml:50:17-95
-88-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Madalin\.gradle\caches\8.13\transforms\03a2380f5a99e280f3135b0abd5edcea\transformed\profileinstaller-1.4.0\AndroidManifest.xml:50:25-92
-89            </intent-filter>
-90        </receiver>
-91    </application>
-92
-93</manifest>
+47-->C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:28:9-32:55
+48            android:name="com.example.ontrack.OnboardingActivity"
+48-->C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:29:13-47
+49            android:exported="false"
+49-->C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:30:13-37
+50            android:label="@string/app_name"
+50-->C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:31:13-45
+51            android:theme="@style/Theme.Onboarding" />
+51-->C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:32:13-52
+52        <activity
+52-->C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:33:9-37:55
+53            android:name="com.example.ontrack.OnboardingSecondActivity"
+53-->C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:34:13-53
+54            android:exported="false"
+54-->C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:35:13-37
+55            android:label="@string/app_name"
+55-->C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:36:13-45
+56            android:theme="@style/Theme.Onboarding" />
+56-->C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:37:13-52
+57        <activity
+57-->C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:38:9-42:52
+58            android:name="com.example.ontrack.MainActivity"
+58-->C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:39:13-41
+59            android:exported="false"
+59-->C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:40:13-37
+60            android:label="@string/app_name"
+60-->C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:41:13-45
+61            android:theme="@style/Theme.OnTrack" />
+61-->C:\Users\Madalin\Desktop\OnTrack\app\src\main\AndroidManifest.xml:42:13-49
+62        <activity
+62-->[androidx.compose.ui:ui-tooling-android:1.9.2] C:\Users\Madalin\.gradle\caches\8.13\transforms\29642cad362bff95f9b016a783034dba\transformed\ui-tooling\AndroidManifest.xml:23:9-25:39
+63            android:name="androidx.compose.ui.tooling.PreviewActivity"
+63-->[androidx.compose.ui:ui-tooling-android:1.9.2] C:\Users\Madalin\.gradle\caches\8.13\transforms\29642cad362bff95f9b016a783034dba\transformed\ui-tooling\AndroidManifest.xml:24:13-71
+64            android:exported="true" />
+64-->[androidx.compose.ui:ui-tooling-android:1.9.2] C:\Users\Madalin\.gradle\caches\8.13\transforms\29642cad362bff95f9b016a783034dba\transformed\ui-tooling\AndroidManifest.xml:25:13-36
+65        <activity
+65-->[androidx.compose.ui:ui-test-manifest:1.9.2] C:\Users\Madalin\.gradle\caches\8.13\transforms\3cce7efb1782d10b5532428eb1fc7da5\transformed\ui-test-manifest-1.9.2\AndroidManifest.xml:23:9-26:79
+66            android:name="androidx.activity.ComponentActivity"
+66-->[androidx.compose.ui:ui-test-manifest:1.9.2] C:\Users\Madalin\.gradle\caches\8.13\transforms\3cce7efb1782d10b5532428eb1fc7da5\transformed\ui-test-manifest-1.9.2\AndroidManifest.xml:24:13-63
+67            android:exported="true"
+67-->[androidx.compose.ui:ui-test-manifest:1.9.2] C:\Users\Madalin\.gradle\caches\8.13\transforms\3cce7efb1782d10b5532428eb1fc7da5\transformed\ui-test-manifest-1.9.2\AndroidManifest.xml:25:13-36
+68            android:theme="@android:style/Theme.Material.Light.NoActionBar" />
+68-->[androidx.compose.ui:ui-test-manifest:1.9.2] C:\Users\Madalin\.gradle\caches\8.13\transforms\3cce7efb1782d10b5532428eb1fc7da5\transformed\ui-test-manifest-1.9.2\AndroidManifest.xml:26:13-76
+69
+70        <provider
+70-->[androidx.emoji2:emoji2:1.4.0] C:\Users\Madalin\.gradle\caches\8.13\transforms\36143fad46a465b9338cedbfb9a63042\transformed\emoji2-1.4.0\AndroidManifest.xml:24:9-32:20
+71            android:name="androidx.startup.InitializationProvider"
+71-->[androidx.emoji2:emoji2:1.4.0] C:\Users\Madalin\.gradle\caches\8.13\transforms\36143fad46a465b9338cedbfb9a63042\transformed\emoji2-1.4.0\AndroidManifest.xml:25:13-67
+72            android:authorities="com.example.ontrack.androidx-startup"
+72-->[androidx.emoji2:emoji2:1.4.0] C:\Users\Madalin\.gradle\caches\8.13\transforms\36143fad46a465b9338cedbfb9a63042\transformed\emoji2-1.4.0\AndroidManifest.xml:26:13-68
+73            android:exported="false" >
+73-->[androidx.emoji2:emoji2:1.4.0] C:\Users\Madalin\.gradle\caches\8.13\transforms\36143fad46a465b9338cedbfb9a63042\transformed\emoji2-1.4.0\AndroidManifest.xml:27:13-37
+74            <meta-data
+74-->[androidx.emoji2:emoji2:1.4.0] C:\Users\Madalin\.gradle\caches\8.13\transforms\36143fad46a465b9338cedbfb9a63042\transformed\emoji2-1.4.0\AndroidManifest.xml:29:13-31:52
+75                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+75-->[androidx.emoji2:emoji2:1.4.0] C:\Users\Madalin\.gradle\caches\8.13\transforms\36143fad46a465b9338cedbfb9a63042\transformed\emoji2-1.4.0\AndroidManifest.xml:30:17-75
+76                android:value="androidx.startup" />
+76-->[androidx.emoji2:emoji2:1.4.0] C:\Users\Madalin\.gradle\caches\8.13\transforms\36143fad46a465b9338cedbfb9a63042\transformed\emoji2-1.4.0\AndroidManifest.xml:31:17-49
+77            <meta-data
+77-->[androidx.lifecycle:lifecycle-process:2.10.0] C:\Users\Madalin\.gradle\caches\8.13\transforms\87ceb748463e47eaa82a1707900be776\transformed\lifecycle-process-2.10.0\AndroidManifest.xml:29:13-31:52
+78                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+78-->[androidx.lifecycle:lifecycle-process:2.10.0] C:\Users\Madalin\.gradle\caches\8.13\transforms\87ceb748463e47eaa82a1707900be776\transformed\lifecycle-process-2.10.0\AndroidManifest.xml:30:17-78
+79                android:value="androidx.startup" />
+79-->[androidx.lifecycle:lifecycle-process:2.10.0] C:\Users\Madalin\.gradle\caches\8.13\transforms\87ceb748463e47eaa82a1707900be776\transformed\lifecycle-process-2.10.0\AndroidManifest.xml:31:17-49
+80            <meta-data
+80-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Madalin\.gradle\caches\8.13\transforms\03a2380f5a99e280f3135b0abd5edcea\transformed\profileinstaller-1.4.0\AndroidManifest.xml:29:13-31:52
+81                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
+81-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Madalin\.gradle\caches\8.13\transforms\03a2380f5a99e280f3135b0abd5edcea\transformed\profileinstaller-1.4.0\AndroidManifest.xml:30:17-85
+82                android:value="androidx.startup" />
+82-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Madalin\.gradle\caches\8.13\transforms\03a2380f5a99e280f3135b0abd5edcea\transformed\profileinstaller-1.4.0\AndroidManifest.xml:31:17-49
+83        </provider>
+84
+85        <service
+85-->[androidx.room:room-runtime:2.6.1] C:\Users\Madalin\.gradle\caches\8.13\transforms\1766a941b25367636351d74f278a257c\transformed\room-runtime-2.6.1\AndroidManifest.xml:24:9-28:63
+86            android:name="androidx.room.MultiInstanceInvalidationService"
+86-->[androidx.room:room-runtime:2.6.1] C:\Users\Madalin\.gradle\caches\8.13\transforms\1766a941b25367636351d74f278a257c\transformed\room-runtime-2.6.1\AndroidManifest.xml:25:13-74
+87            android:directBootAware="true"
+87-->[androidx.room:room-runtime:2.6.1] C:\Users\Madalin\.gradle\caches\8.13\transforms\1766a941b25367636351d74f278a257c\transformed\room-runtime-2.6.1\AndroidManifest.xml:26:13-43
+88            android:exported="false" />
+88-->[androidx.room:room-runtime:2.6.1] C:\Users\Madalin\.gradle\caches\8.13\transforms\1766a941b25367636351d74f278a257c\transformed\room-runtime-2.6.1\AndroidManifest.xml:27:13-37
+89
+90        <receiver
+90-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Madalin\.gradle\caches\8.13\transforms\03a2380f5a99e280f3135b0abd5edcea\transformed\profileinstaller-1.4.0\AndroidManifest.xml:34:9-52:20
+91            android:name="androidx.profileinstaller.ProfileInstallReceiver"
+91-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Madalin\.gradle\caches\8.13\transforms\03a2380f5a99e280f3135b0abd5edcea\transformed\profileinstaller-1.4.0\AndroidManifest.xml:35:13-76
+92            android:directBootAware="false"
+92-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Madalin\.gradle\caches\8.13\transforms\03a2380f5a99e280f3135b0abd5edcea\transformed\profileinstaller-1.4.0\AndroidManifest.xml:36:13-44
+93            android:enabled="true"
+93-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Madalin\.gradle\caches\8.13\transforms\03a2380f5a99e280f3135b0abd5edcea\transformed\profileinstaller-1.4.0\AndroidManifest.xml:37:13-35
+94            android:exported="true"
+94-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Madalin\.gradle\caches\8.13\transforms\03a2380f5a99e280f3135b0abd5edcea\transformed\profileinstaller-1.4.0\AndroidManifest.xml:38:13-36
+95            android:permission="android.permission.DUMP" >
+95-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Madalin\.gradle\caches\8.13\transforms\03a2380f5a99e280f3135b0abd5edcea\transformed\profileinstaller-1.4.0\AndroidManifest.xml:39:13-57
+96            <intent-filter>
+96-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Madalin\.gradle\caches\8.13\transforms\03a2380f5a99e280f3135b0abd5edcea\transformed\profileinstaller-1.4.0\AndroidManifest.xml:40:13-42:29
+97                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
+97-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Madalin\.gradle\caches\8.13\transforms\03a2380f5a99e280f3135b0abd5edcea\transformed\profileinstaller-1.4.0\AndroidManifest.xml:41:17-91
+97-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Madalin\.gradle\caches\8.13\transforms\03a2380f5a99e280f3135b0abd5edcea\transformed\profileinstaller-1.4.0\AndroidManifest.xml:41:25-88
+98            </intent-filter>
+99            <intent-filter>
+99-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Madalin\.gradle\caches\8.13\transforms\03a2380f5a99e280f3135b0abd5edcea\transformed\profileinstaller-1.4.0\AndroidManifest.xml:43:13-45:29
+100                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
+100-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Madalin\.gradle\caches\8.13\transforms\03a2380f5a99e280f3135b0abd5edcea\transformed\profileinstaller-1.4.0\AndroidManifest.xml:44:17-85
+100-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Madalin\.gradle\caches\8.13\transforms\03a2380f5a99e280f3135b0abd5edcea\transformed\profileinstaller-1.4.0\AndroidManifest.xml:44:25-82
+101            </intent-filter>
+102            <intent-filter>
+102-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Madalin\.gradle\caches\8.13\transforms\03a2380f5a99e280f3135b0abd5edcea\transformed\profileinstaller-1.4.0\AndroidManifest.xml:46:13-48:29
+103                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
+103-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Madalin\.gradle\caches\8.13\transforms\03a2380f5a99e280f3135b0abd5edcea\transformed\profileinstaller-1.4.0\AndroidManifest.xml:47:17-88
+103-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Madalin\.gradle\caches\8.13\transforms\03a2380f5a99e280f3135b0abd5edcea\transformed\profileinstaller-1.4.0\AndroidManifest.xml:47:25-85
+104            </intent-filter>
+105            <intent-filter>
+105-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Madalin\.gradle\caches\8.13\transforms\03a2380f5a99e280f3135b0abd5edcea\transformed\profileinstaller-1.4.0\AndroidManifest.xml:49:13-51:29
+106                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
+106-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Madalin\.gradle\caches\8.13\transforms\03a2380f5a99e280f3135b0abd5edcea\transformed\profileinstaller-1.4.0\AndroidManifest.xml:50:17-95
+106-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Madalin\.gradle\caches\8.13\transforms\03a2380f5a99e280f3135b0abd5edcea\transformed\profileinstaller-1.4.0\AndroidManifest.xml:50:25-92
+107            </intent-filter>
+108        </receiver>
+109    </application>
+110
+111</manifest>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Wraps icon_app so it fits the adaptive icon safe zone (center 66%);
+     launcher applies squircle/circle mask, so content must stay centered. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:drawable="@drawable/icon_app"
+        android:gravity="center"
+        android:width="72dp"
+        android:height="72dp" />
+</layer-list>

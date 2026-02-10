@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- Fundal complet din Figma -->
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="fitXY"
+        android:src="@drawable/welcome" />
+
+    <!-- Text + input + buton, poziționate proporțional -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <!-- Guideline pentru titlu (18% de la top) -->
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent="0.18" />
+
+        <!-- Guideline pentru buton (aprox. 82% de la top) -->
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent="0.82" />
+
+        <!-- H1: Hi, Welcome -->
+        <TextView
+            android:id="@+id/welcome_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-medium"
+            android:gravity="center"
+            android:text="Hi, Welcome"
+            android:textColor="#FFEFE0C0"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            app:layout_constraintTop_toTopOf="@id/guideline_title"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- H2: to the app -->
+        <TextView
+            android:id="@+id/welcome_subtext"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:fontFamily="sans-serif-medium"
+            android:gravity="center"
+            android:letterSpacing="0.03"
+            android:text="to the app"
+            android:textColor="#FFEFE0C0"
+            android:textSize="20sp"
+            android:textStyle="italic"
+            app:layout_constraintTop_toBottomOf="@id/welcome_text"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- Body text -->
+        <TextView
+            android:id="@+id/tagline_text"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:fontFamily="sans-serif"
+            android:gravity="center"
+            android:letterSpacing="0.02"
+            android:lineSpacingMultiplier="1.4"
+            android:maxWidth="320dp"
+            android:text="Create systems to build \nstrong habbits"
+            android:textColor="#FFEFE0C0"
+            android:textSize="14sp"
+            app:layout_constraintTop_toBottomOf="@id/welcome_subtext"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- Câmp nume, între text și buton -->
+        <EditText
+            android:id="@+id/name_input"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/button_pill_serene"
+            android:hint="Enter your name"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:singleLine="true"
+            android:textColor="@color/serene_button_text"
+            android:textColorHint="#AA333333"
+            android:inputType="textPersonName"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@id/get_started_button"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintWidth_percent="0.82"
+            app:layout_goneMarginTop="16dp" />
+
+        <!-- Buton GET STARTED, fixat jos proporțional -->
+        <Button
+            android:id="@+id/get_started_button"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:text="GET STARTED"
+            android:textColor="@color/serene_button_text"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.1"
+            android:background="@drawable/button_pill_serene"
+            android:elevation="0dp"
+            android:stateListAnimator="@null"
+            app:layout_constraintTop_toTopOf="@id/guideline_button"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintWidth_percent="0.82" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</FrameLayout>

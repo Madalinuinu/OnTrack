@@ -1,0 +1,162 @@
+[
+    {
+        "merged": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-release-68:\\mipmap-hdpi_ic_launcher_round.webp.flat",
+        "source": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-main-69:\\mipmap-hdpi\\ic_launcher_round.webp"
+    },
+    {
+        "merged": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-release-68:\\mipmap-xhdpi_ic_launcher_round.webp.flat",
+        "source": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-main-69:\\mipmap-xhdpi\\ic_launcher_round.webp"
+    },
+    {
+        "merged": "com.example.ontrack.app-release-68:/layout_activity_onboarding.xml.flat",
+        "source": "com.example.ontrack.app-main-69:/layout/activity_onboarding.xml"
+    },
+    {
+        "merged": "com.example.ontrack.app-release-68:/drawable_onboarding_cloud_wide.xml.flat",
+        "source": "com.example.ontrack.app-main-69:/drawable/onboarding_cloud_wide.xml"
+    },
+    {
+        "merged": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-release-68:\\layout_activity_splash.xml.flat",
+        "source": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-main-69:\\layout\\activity_splash.xml"
+    },
+    {
+        "merged": "com.example.ontrack.app-release-68:/layout_activity_onboarding_2nd.xml.flat",
+        "source": "com.example.ontrack.app-main-69:/layout/activity_onboarding_2nd.xml"
+    },
+    {
+        "merged": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-release-68:\\layout_activity_onboarding.xml.flat",
+        "source": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-main-69:\\layout\\activity_onboarding.xml"
+    },
+    {
+        "merged": "com.example.ontrack.app-release-68:/drawable_onboarding_cloud_full.xml.flat",
+        "source": "com.example.ontrack.app-main-69:/drawable/onboarding_cloud_full.xml"
+    },
+    {
+        "merged": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-release-68:\\drawable_splash_gradient_serene.xml.flat",
+        "source": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-main-69:\\drawable\\splash_gradient_serene.xml"
+    },
+    {
+        "merged": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-release-68:\\drawable_ic_launcher_background.xml.flat",
+        "source": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-main-69:\\drawable\\ic_launcher_background.xml"
+    },
+    {
+        "merged": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-release-68:\\drawable_ic_launcher_foreground.xml.flat",
+        "source": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-main-69:\\drawable\\ic_launcher_foreground.xml"
+    },
+    {
+        "merged": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-release-68:\\mipmap-anydpi-v26_ic_launcher.xml.flat",
+        "source": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-main-69:\\mipmap-anydpi-v26\\ic_launcher.xml"
+    },
+    {
+        "merged": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-release-68:\\mipmap-hdpi_ic_launcher.webp.flat",
+        "source": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-main-69:\\mipmap-hdpi\\ic_launcher.webp"
+    },
+    {
+        "merged": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-release-68:\\drawable_button_get_started.xml.flat",
+        "source": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-main-69:\\drawable\\button_get_started.xml"
+    },
+    {
+        "merged": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-release-68:\\xml_data_extraction_rules.xml.flat",
+        "source": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-main-69:\\xml\\data_extraction_rules.xml"
+    },
+    {
+        "merged": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-release-68:\\mipmap-xxhdpi_ic_launcher_round.webp.flat",
+        "source": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-main-69:\\mipmap-xxhdpi\\ic_launcher_round.webp"
+    },
+    {
+        "merged": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-release-68:\\drawable_splash_full.png.flat",
+        "source": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-main-69:\\drawable\\splash_full.png"
+    },
+    {
+        "merged": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-release-68:\\drawable_onboarding_illustration.xml.flat",
+        "source": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-main-69:\\drawable\\onboarding_illustration.xml"
+    },
+    {
+        "merged": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-release-68:\\drawable_button_pill_serene.xml.flat",
+        "source": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-main-69:\\drawable\\button_pill_serene.xml"
+    },
+    {
+        "merged": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-release-68:\\drawable_splash_screen.xml.flat",
+        "source": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-main-69:\\drawable\\splash_screen.xml"
+    },
+    {
+        "merged": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-release-68:\\mipmap-xxxhdpi_ic_launcher_round.webp.flat",
+        "source": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-main-69:\\mipmap-xxxhdpi\\ic_launcher_round.webp"
+    },
+    {
+        "merged": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-release-68:\\mipmap-xxxhdpi_ic_launcher.webp.flat",
+        "source": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-main-69:\\mipmap-xxxhdpi\\ic_launcher.webp"
+    },
+    {
+        "merged": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-release-68:\\drawable_onboarding_rings.xml.flat",
+        "source": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-main-69:\\drawable\\onboarding_rings.xml"
+    },
+    {
+        "merged": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-release-68:\\drawable_onboarding_bottom.xml.flat",
+        "source": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-main-69:\\drawable\\onboarding_bottom.xml"
+    },
+    {
+        "merged": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-release-68:\\mipmap-xhdpi_ic_launcher.webp.flat",
+        "source": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-main-69:\\mipmap-xhdpi\\ic_launcher.webp"
+    },
+    {
+        "merged": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-release-68:\\drawable_onboarding_dot.xml.flat",
+        "source": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-main-69:\\drawable\\onboarding_dot.xml"
+    },
+    {
+        "merged": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-release-68:\\drawable_splash_gradient.xml.flat",
+        "source": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-main-69:\\drawable\\splash_gradient.xml"
+    },
+    {
+        "merged": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-release-68:\\drawable_onboarding_cloud_full.xml.flat",
+        "source": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-main-69:\\drawable\\onboarding_cloud_full.xml"
+    },
+    {
+        "merged": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-release-68:\\drawable_splash_icon.png.flat",
+        "source": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-main-69:\\drawable\\splash_icon.png"
+    },
+    {
+        "merged": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-release-68:\\drawable_ic_launcher_monochrome.xml.flat",
+        "source": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-main-69:\\drawable\\ic_launcher_monochrome.xml"
+    },
+    {
+        "merged": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-release-68:\\drawable_ic_launcher_foreground_icon.xml.flat",
+        "source": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-main-69:\\drawable\\ic_launcher_foreground_icon.xml"
+    },
+    {
+        "merged": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-release-68:\\drawable_placeholder_meditation.xml.flat",
+        "source": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-main-69:\\drawable\\placeholder_meditation.xml"
+    },
+    {
+        "merged": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-release-68:\\mipmap-xxhdpi_ic_launcher.webp.flat",
+        "source": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-main-69:\\mipmap-xxhdpi\\ic_launcher.webp"
+    },
+    {
+        "merged": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-release-68:\\mipmap-anydpi-v26_ic_launcher_round.xml.flat",
+        "source": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-main-69:\\mipmap-anydpi-v26\\ic_launcher_round.xml"
+    },
+    {
+        "merged": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-release-68:\\mipmap-mdpi_ic_launcher.webp.flat",
+        "source": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-main-69:\\mipmap-mdpi\\ic_launcher.webp"
+    },
+    {
+        "merged": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-release-68:\\mipmap-mdpi_ic_launcher_round.webp.flat",
+        "source": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-main-69:\\mipmap-mdpi\\ic_launcher_round.webp"
+    },
+    {
+        "merged": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-release-68:\\drawable_icon_app.png.flat",
+        "source": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-main-69:\\drawable\\icon_app.png"
+    },
+    {
+        "merged": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-release-68:\\xml_backup_rules.xml.flat",
+        "source": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-main-69:\\xml\\backup_rules.xml"
+    },
+    {
+        "merged": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-release-68:\\drawable_onboarding_cloud_left.xml.flat",
+        "source": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-main-69:\\drawable\\onboarding_cloud_left.xml"
+    },
+    {
+        "merged": "com.example.ontrack.app-release-68:/drawable_onboarding_rings.xml.flat",
+        "source": "com.example.ontrack.app-main-69:/drawable/onboarding_rings.xml"
+    }
+]

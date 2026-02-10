@@ -21,9 +21,8 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.DayOfWeek
-import java.time.Instant
 import java.time.LocalDate
-import java.time.ZoneId
+import java.util.Calendar
 import kotlin.math.max
 
 /** Active countdown for one habit. */
@@ -130,7 +129,7 @@ class TrackerViewModel(
             _system.value = sys
             sys?.let { s ->
                 if (s.duration != null) {
-                    val startDate = Instant.ofEpochMilli(s.startDate).atZone(ZoneId.systemDefault()).toLocalDate()
+                    val startDate = millisToLocalDate(s.startDate)
                     val startEpoch = startDate.toEpochDay()
                     val endEpoch = startEpoch + s.duration - 1
                     _daysLeft.value = max(0, (endEpoch - todayEpochDay).toInt())
@@ -142,6 +141,17 @@ class TrackerViewModel(
             _isTodayComplete.value = streakManager.isDayComplete(systemId, todayEpochDay)
             _freezeCount.value = streakManager.getFreezeCount(systemId)
         }
+    }
+
+    /** Millis to LocalDate without using ofInstant (API 24 compatible). */
+    private fun millisToLocalDate(millis: Long): LocalDate {
+        val c = Calendar.getInstance()
+        c.timeInMillis = millis
+        return LocalDate.of(
+            c.get(Calendar.YEAR),
+            c.get(Calendar.MONTH) + 1,
+            c.get(Calendar.DAY_OF_MONTH)
+        )
     }
 
     fun toggleHabit(habitId: Long) {

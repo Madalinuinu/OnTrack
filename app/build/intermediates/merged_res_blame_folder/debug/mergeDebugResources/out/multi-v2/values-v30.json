@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.ontrack.app-mergeDebugResources-45:/values-v30/values-v30.xml",
+            "outputFile": "com.example.ontrack.app-mergeDebugResources-64:/values-v30/values-v30.xml",
             "map": [
                 {
                     "source": "C:\\Users\\Madalin\\.gradle\\caches\\8.13\\transforms\\85bf98d656588fe51305aa9728061eca\\transformed\\material3-release\\res\\values-v30\\values-v30.xml",

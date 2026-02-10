@@ -9,4 +9,22 @@
     <color name="white">#FFFFFFFF</color>
     <!-- Same as loading screen background (Material 3 light surface) -->
     <color name="launch_background">#FFFBFE</color>
+    <!-- Splash / brand (matches pro icon: violet–purple) -->
+    <color name="splash_brand_green">#58CC02</color>
+    <color name="splash_brand_primary">#667eea</color>
+    <color name="splash_brand_secondary">#764ba2</color>
+    <color name="splash_text_primary">#FFFFFF</color>
+    <!-- Onboarding colors -->
+    <color name="onboarding_background">#E8D5FF</color>
+    <color name="onboarding_welcome_primary">#FFE5B4</color>
+    <color name="onboarding_welcome_secondary">#E8D5FF</color>
+    <color name="onboarding_tagline">#B8A0C7</color>
+    <color name="onboarding_button_bg">#E0E0E0</color>
+    <color name="onboarding_button_text">#666666</color>
+    <!-- Serene Habits UI design system -->
+    <color name="serene_background_primary">#8C9EFF</color>
+    <color name="serene_text_primary">#FFFFFF</color>
+    <color name="serene_text_secondary">#E0E7FF</color>
+    <color name="serene_button_background">#F0F0F0</color>
+    <color name="serene_button_text">#333333</color>
 </resources>

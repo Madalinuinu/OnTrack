@@ -1,0 +1,42 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="414dp"
+    android:height="492dp"
+    android:viewportWidth="414"
+    android:viewportHeight="492">
+
+    <!-- Cerc mare de bază -->
+    <path
+        android:fillColor="#FF9AA2FD"
+        android:pathData="M207 0A246 246 0 1 0 207 492 246 246 0 1 0 207 0z" />
+
+    <!-- Overlay foarte deschis pentru cercul mare (încă un inel) -->
+    <path
+        android:fillColor="#FF949DFF"
+        android:pathData="M207 0A246 246 0 1 0 207 492 246 246 0 1 0 207 0z" />
+
+    <!-- Cerc 2 -->
+    <path
+        android:fillColor="#FF9AA2FD"
+        android:pathData="M207 35A211 211 0 1 0 207 457 211 211 0 1 0 207 35z" />
+
+    <!-- Overlay ușor pentru cerc 2 (cercul lipsă 1) -->
+    <path
+        android:fillColor="#FF99A1FF"
+        android:pathData="M207 35A211 211 0 1 0 207 457 211 211 0 1 0 207 35z" />
+
+    <!-- Cerc 3 -->
+    <path
+        android:fillColor="#FF9AA2FD"
+        android:pathData="M207 69A177 177 0 1 0 207 423 177 177 0 1 0 207 69z" />
+
+    <!-- Overlay ușor pentru cerc 3 (cercul lipsă 2) -->
+    <path
+        android:fillColor="#FF9EA6FF"
+        android:pathData="M207 69A177 177 0 1 0 207 423 177 177 0 1 0 207 69z" />
+
+    <!-- Cerc 4 (interior) -->
+    <path
+        android:fillColor="#FFA3ABFF"
+        android:pathData="M207 104A142 142 0 1 0 207 388 142 142 0 1 0 207 104z" />
+
+</vector>

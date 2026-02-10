@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <!-- Folosim exact aceeași culoare ca ecranul "Hi, Welcome / to OnTrack" -->
+    <gradient
+        android:angle="270"
+        android:startColor="@color/serene_background_primary"
+        android:endColor="@color/serene_background_primary"
+        android:type="linear" />
+</shape>

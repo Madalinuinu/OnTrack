@@ -1,8 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <style name="Theme.OnTrack" parent="android:Theme.Material.Light.NoActionBar">
-        <item name="android:windowBackground">@drawable/splash_screen</item>
         <item name="android:statusBarColor">@android:color/black</item>
         <item name="android:navigationBarColor">@android:color/black</item>
+        <!-- Ensure no white flash when switching to MainActivity -->
+        <item name="android:windowBackground">@android:color/black</item>
+    </style>
+    
+    <style name="Theme.Splash" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:windowBackground">@drawable/splash_screen</item>
+        <item name="android:windowDisablePreview">true</item>
+        <!-- Splash cu exact aceeași culoare ca "Hi, Welcome OnTrack" -->
+        <item name="android:statusBarColor">@color/serene_background_primary</item>
+        <item name="android:navigationBarColor">@color/serene_background_primary</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+    </style>
+    
+    <!-- Onboarding: Serene Habits UI - background.primary #8C9EFF -->
+    <style name="Theme.Onboarding" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:statusBarColor">@color/serene_background_primary</item>
+        <item name="android:navigationBarColor">@color/serene_background_primary</item>
+        <item name="android:windowBackground">@color/serene_background_primary</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
     </style>
 </resources>

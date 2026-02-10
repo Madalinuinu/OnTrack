@@ -32,7 +32,6 @@ import com.example.ontrack.ui.home.HomeViewModel
 import com.example.ontrack.ui.home.HomeViewModelFactory
 import com.example.ontrack.ui.onboarding.OnboardingScreen
 import com.example.ontrack.ui.theme.OnTrackTheme
-import com.example.ontrack.ui.components.LoadingScreen
 import com.example.ontrack.ui.tracker.TrackerScreen
 import com.example.ontrack.ui.tracker.TrackerViewModel
 import com.example.ontrack.ui.tracker.TrackerViewModelFactory
@@ -48,20 +47,12 @@ class MainActivity : ComponentActivity() {
             val mainViewModel: MainViewModel = viewModel(
                 factory = MainViewModelFactory(application.userPreferences)
             )
-            val isFirstLaunch by mainViewModel.isFirstLaunch.collectAsState(initial = null)
             val userName by mainViewModel.userName.collectAsState(initial = "")
             val darkMode by mainViewModel.darkMode.collectAsState(initial = false)
 
             OnTrackTheme(darkTheme = darkMode) {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    when (isFirstLaunch) {
-                        null -> LoadingScreen(modifier = Modifier.padding(innerPadding))
-                        true -> OnboardingScreen(
-                            onStartClick = { name -> mainViewModel.completeOnboarding(name) },
-                            modifier = Modifier.padding(innerPadding)
-                        )
-                        false -> {
-                        val navController = rememberNavController()
+                    val navController = rememberNavController()
                         NavHost(
                             navController = navController,
                             startDestination = "home",
@@ -161,9 +152,7 @@ class MainActivity : ComponentActivity() {
                                 )
                             }
                         }
-                    }
                 }
-            }
             }
         }
     }

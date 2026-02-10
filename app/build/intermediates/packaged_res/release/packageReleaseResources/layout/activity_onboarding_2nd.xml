@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- Fundal de bază (mov simplu) -->
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="fitXY"
+        android:src="@drawable/onboarding_bottom" />
+
+    <!-- Cercurile complete, peste fundal -->
+    <ImageView
+        android:id="@+id/rings_background"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:translationY="145dp"
+        android:scaleType="fitCenter"
+        android:src="@drawable/onboarding_rings" />
+
+    <!-- Overlay de culoare mov în partea de jos, peste cercuri, dar sub conținut -->
+    <ImageView
+        android:id="@+id/bottom_overlay"
+        android:layout_width="match_parent"
+        android:layout_height="216dp"
+        android:layout_gravity="bottom"
+        android:scaleType="fitXY"
+        android:src="@drawable/onboarding_bottom" />
+
+    <!-- Conținut scrollabil deasupra cercurilor, dar sub nori -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:paddingTop="32dp"
+            android:paddingBottom="34dp">
+
+            <!-- Zonă ilustrație + nori, peste cercuri (care sunt în spate la nivel de pagină) -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:orientation="vertical"
+                android:paddingStart="24dp"
+                android:paddingEnd="24dp">
+
+                <!-- H1: Hi, Welcome + nume (setat din cod) -->
+                <TextView
+                    android:id="@+id/welcome_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="64dp"
+                    android:fontFamily="sans-serif-medium"
+                    android:gravity="center"
+                    android:text="Hi, Welcome"
+                    android:textColor="#FFEFE0C0"
+                    android:textSize="28sp"
+                    android:textStyle="bold" />
+
+                <!-- H2: to the app -->
+                <TextView
+                    android:id="@+id/welcome_subtext"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:fontFamily="sans-serif-medium"
+                    android:gravity="center"
+                    android:letterSpacing="0.03"
+                    android:text="to the app"
+                    android:textColor="#FFEFE0C0"
+                    android:textSize="20sp"
+                    android:textStyle="italic" />
+
+                <!-- Body: text.secondary -->
+                <TextView
+                    android:id="@+id/tagline_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="24dp"
+                    android:layout_marginBottom="0dp"
+                    android:fontFamily="sans-serif"
+                    android:gravity="center"
+                    android:letterSpacing="0.02"
+                    android:lineSpacingMultiplier="1.4"
+                    android:maxWidth="320dp"
+                    android:text="Explore the app and create systems \nto build good habbits"
+                    android:textColor="#FFEFE0C0"
+                    android:textSize="14sp" />
+            </LinearLayout>
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="260dp"
+                android:layout_marginTop="140dp">
+
+                <!-- Ilustrația de meditație, peste cercuri -->
+                <ImageView
+                    android:id="@+id/meditation_illustration"
+                    android:layout_width="match_parent"
+                    android:layout_height="268dp"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/onboarding_illustration" />
+            </FrameLayout>
+
+            <!-- Buton CONTINUE cu același design ca GET STARTED -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="24dp"
+                android:paddingEnd="24dp">
+
+                <Button
+                    android:id="@+id/continue_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:layout_marginTop="32dp"
+                    android:layout_marginBottom="24dp"
+                    android:text="CONTINUE"
+                    android:textColor="@color/serene_button_text"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.1"
+                    android:background="@drawable/button_pill_serene"
+                    android:elevation="0dp"
+                    android:stateListAnimator="@null" />
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- Nori deasupra la orice conținut -->
+    <ImageView
+        android:id="@+id/cloud_left"
+        android:layout_width="54dp"
+        android:layout_height="52dp"
+        android:layout_gravity="start|top"
+        android:layout_marginStart="35dp"
+        android:layout_marginTop="430dp"
+        android:src="@drawable/onboarding_cloud_full" />
+
+    <ImageView
+        android:id="@+id/cloud_wide"
+        android:layout_width="98dp"
+        android:layout_height="56dp"
+        android:layout_gravity="end|top"
+        android:layout_marginEnd="5dp"
+        android:layout_marginTop="500dp"
+        android:src="@drawable/onboarding_cloud_wide" />
+</FrameLayout>
+
