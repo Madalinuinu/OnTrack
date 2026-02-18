@@ -27,19 +27,6 @@ class MainViewModel(
             initialValue = ""
         )
 
-    val darkMode: StateFlow<Boolean> = userPreferences.darkMode
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = false
-        )
-
-    fun toggleDarkMode() {
-        viewModelScope.launch {
-            userPreferences.setDarkMode(!darkMode.value)
-        }
-    }
-
     fun completeOnboarding(name: String) {
         viewModelScope.launch {
             userPreferences.setFirstLaunchComplete(name)

@@ -48,9 +48,8 @@ class MainActivity : ComponentActivity() {
                 factory = MainViewModelFactory(application.userPreferences)
             )
             val userName by mainViewModel.userName.collectAsState(initial = "")
-            val darkMode by mainViewModel.darkMode.collectAsState(initial = false)
 
-            OnTrackTheme(darkTheme = darkMode) {
+            OnTrackTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     val navController = rememberNavController()
                         NavHost(
@@ -68,8 +67,6 @@ class MainActivity : ComponentActivity() {
                                 HomeScreen(
                                     viewModel = homeViewModel,
                                     userName = userName,
-                                    darkMode = darkMode,
-                                    onToggleDarkMode = { mainViewModel.toggleDarkMode() },
                                     onCreateSystemClick = { navController.navigate("create_system") },
                                     onOpenSystemClick = { systemId ->
                                         navController.navigate("tracker/$systemId")

@@ -20,18 +20,16 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Delete
-import androidx.compose.material.icons.outlined.DarkMode
 import androidx.compose.material.icons.outlined.FolderOpen
 import androidx.compose.material.icons.outlined.KeyboardArrowDown
 import androidx.compose.material.icons.outlined.KeyboardArrowUp
-import androidx.compose.material.icons.outlined.LightMode
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -46,8 +44,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.shape.RoundedCornerShape
 import com.example.ontrack.data.local.entity.SystemEntity
 import com.example.ontrack.ui.components.StreakBadge
@@ -56,8 +56,6 @@ import com.example.ontrack.ui.components.StreakBadge
 fun HomeScreen(
     viewModel: HomeViewModel,
     userName: String,
-    darkMode: Boolean,
-    onToggleDarkMode: () -> Unit,
     onCreateSystemClick: () -> Unit,
     onOpenSystemClick: (Long) -> Unit,
     onActivityClick: (Long) -> Unit,
@@ -118,15 +116,13 @@ fun HomeScreen(
         ) {
             Text(
                 text = "Welcome back, ${userName.ifBlank { "there" }}",
-                style = MaterialTheme.typography.headlineMedium,
-                modifier = Modifier.weight(1f)
+                style = MaterialTheme.typography.headlineMedium.copy(
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.SemiBold
+                ),
+                color = Color(0xFFFFECCC),
+                modifier = Modifier.fillMaxWidth()
             )
-            IconButton(onClick = onToggleDarkMode) {
-                Icon(
-                    imageVector = if (darkMode) Icons.Outlined.LightMode else Icons.Outlined.DarkMode,
-                    contentDescription = if (darkMode) "Light mode" else "Dark mode"
-                )
-            }
         }
         Spacer(modifier = Modifier.height(24.dp))
 

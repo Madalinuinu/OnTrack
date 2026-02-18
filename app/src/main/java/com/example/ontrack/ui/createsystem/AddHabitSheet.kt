@@ -9,13 +9,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -25,6 +24,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.ontrack.data.local.entity.FrequencyType
+import com.example.ontrack.ui.components.OnTrackPrimaryButton
+import com.example.ontrack.ui.components.OnTrackSegmentButton
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -77,22 +78,12 @@ fun AddHabitSheet(
                     FrequencyType.WEEKLY -> "Weekly"
                     FrequencyType.SPECIFIC_DAYS -> "X/week"
                 }
-                val selected = frequency == type
-                if (selected) {
-                    Button(
-                        onClick = { frequency = type },
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text(text = label, style = MaterialTheme.typography.labelMedium)
-                    }
-                } else {
-                    OutlinedButton(
-                        onClick = { frequency = type },
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text(text = label, style = MaterialTheme.typography.labelMedium)
-                    }
-                }
+                OnTrackSegmentButton(
+                    text = label,
+                    selected = frequency == type,
+                    modifier = Modifier.weight(1f),
+                    onClick = { frequency = type }
+                )
             }
         }
 
@@ -121,7 +112,8 @@ fun AddHabitSheet(
                 Text("Cancel")
             }
             Spacer(modifier = Modifier.padding(8.dp))
-            Button(
+            OnTrackPrimaryButton(
+                text = if (isEdit) "Save" else "Add",
                 onClick = {
                     if (title.isNotBlank()) {
                         val item = HabitItem(
@@ -133,9 +125,7 @@ fun AddHabitSheet(
                         onDismiss()
                     }
                 }
-            ) {
-                Text(if (isEdit) "Save" else "Add")
-            }
+            )
         }
     }
 }
