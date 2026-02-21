@@ -14,6 +14,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -78,22 +79,25 @@ fun DateRangePickerSheet(
     Column(
         modifier = modifier
             .fillMaxWidth()
+            .background(Color.White)
             .padding(24.dp)
     ) {
         Text(
             text = "Select period",
-            style = MaterialTheme.typography.titleLarge
+            style = MaterialTheme.typography.titleLarge,
+            color = Color.Black
         )
         Text(
             text = "Tap first date (From), then second date (To). From this month onward.",
             style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            color = Color.Gray,
             modifier = Modifier.padding(top = 4.dp)
         )
         if (fromEpoch != null) {
             Text(
                 text = "From: ${LocalDate.ofEpochDay(fromEpoch!!).format(formatter)}",
                 style = MaterialTheme.typography.bodyMedium,
+                color = Color.Black,
                 modifier = Modifier.padding(top = 8.dp)
             )
         }
@@ -101,6 +105,7 @@ fun DateRangePickerSheet(
             Text(
                 text = "To: ${LocalDate.ofEpochDay(toEpoch!!).format(formatter)}",
                 style = MaterialTheme.typography.bodyMedium,
+                color = Color.Black,
                 modifier = Modifier.padding(top = 2.dp)
             )
         }
@@ -116,14 +121,15 @@ fun DateRangePickerSheet(
                 onClick = { if (canGoPrev) selectedMonth = selectedMonth.minusMonths(1) },
                 enabled = canGoPrev
             ) {
-                Icon(Icons.Default.KeyboardArrowLeft, contentDescription = "Previous month")
+                Icon(Icons.Default.KeyboardArrowLeft, contentDescription = "Previous month", tint = Color.Black)
             }
             Text(
                 text = selectedMonth.format(DateTimeFormatter.ofPattern("MMMM yyyy")),
-                style = MaterialTheme.typography.titleMedium
+                style = MaterialTheme.typography.titleMedium,
+                color = Color.Black
             )
             IconButton(onClick = { selectedMonth = selectedMonth.plusMonths(1) }) {
-                Icon(Icons.Default.KeyboardArrowRight, contentDescription = "Next month")
+                Icon(Icons.Default.KeyboardArrowRight, contentDescription = "Next month", tint = Color.Black)
             }
         }
 
@@ -162,10 +168,14 @@ fun DateRangePickerSheet(
                     onCancel()
                     onDismiss()
                 }) {
-                    Text("Cancel")
+                    Text("Cancel", color = Color.Gray)
                 }
                 Button(
                     modifier = Modifier.padding(start = 8.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = Color.White
+                    ),
                     onClick = {
                         val (f, t) = minOf(fromEpoch!!, toEpoch!!) to maxOf(fromEpoch!!, toEpoch!!)
                         onRangeSelected(
@@ -206,7 +216,7 @@ private fun CalendarGrid(
                 Text(
                     text = day,
                     style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = Color.Gray,
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -255,10 +265,10 @@ private fun CalendarGrid(
                                 text = "$dayNum",
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = when {
-                                    isFrom || isTo -> MaterialTheme.colorScheme.onPrimary
-                                    inRange -> MaterialTheme.colorScheme.onPrimaryContainer
-                                    isPast -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
-                                    else -> MaterialTheme.colorScheme.onSurface
+                                    isFrom || isTo -> Color.White
+                                    inRange -> MaterialTheme.colorScheme.primary
+                                    isPast -> Color.Gray.copy(alpha = 0.6f)
+                                    else -> Color.Black
                                 }
                             )
                         }

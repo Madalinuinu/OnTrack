@@ -3103,6 +3103,7 @@ id beginOnFirstDraw
 id beginning
 id blocking
 id bottom
+id bottom_overlay
 id bounce
 id buttonPanel
 id cancel_button
@@ -3121,6 +3122,7 @@ id clear_text
 id clip_horizontal
 id clip_vertical
 id clockwise
+id cloud_left
 id coil_request_manager
 id collapseActionView
 id compose_prefetch_scheduler
@@ -3266,6 +3268,7 @@ id material_timepicker_ok_button
 id material_timepicker_view
 id material_value_index
 id matrix
+id meditation_illustration
 id message
 id middle
 id mini
@@ -3348,6 +3351,7 @@ id right
 id rightToLeft
 id right_icon
 id right_side
+id rings_background
 id rounded
 id row_index_key
 id save_non_transition_alpha

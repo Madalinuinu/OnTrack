@@ -42,7 +42,8 @@ class CreateSystemViewModel(
     }
 
     fun updateDuration(duration: String) {
-        _uiState.value = _uiState.value.copy(duration = duration)
+        val digitsOnly = duration.filter { it.isDigit() }
+        _uiState.value = _uiState.value.copy(duration = digitsOnly)
     }
 
     fun addHabit(habit: HabitItem) {

@@ -86,6 +86,13 @@ fun TrackerScreen(
         }
     }
 
+    LaunchedEffect(Unit) {
+        val pending = com.example.ontrack.PendingTimer.consume()
+        if (pending != null && pending.systemId == viewModel.systemId) {
+            viewModel.startTimer(pending.habitId, pending.habitTitle, pending.totalSeconds)
+        }
+    }
+
     Scaffold(
         modifier = modifier.fillMaxSize(),
         topBar = {
@@ -215,8 +222,8 @@ private fun showTimerNotification(context: Context, habitTitle: String) {
         .createNotificationChannel(channel)
     val notification = NotificationCompat.Builder(context, TIMER_CHANNEL_ID)
         .setSmallIcon(android.R.drawable.ic_popup_reminder)
-        .setContentTitle("Timpul e gata")
-        .setContentText("Timpul e gata la habitul: $habitTitle")
+        .setContentTitle("Time's up")
+        .setContentText("Time's up for: $habitTitle")
         .setPriority(NotificationCompat.PRIORITY_DEFAULT)
         .setAutoCancel(true)
         .build()

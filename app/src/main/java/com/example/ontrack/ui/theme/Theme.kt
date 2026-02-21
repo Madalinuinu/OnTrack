@@ -5,8 +5,10 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
-// Culoarea de brand cerută: #4D57C8
-private val BrandColor = Color(0xFF4D57C8)
+// Culoarea de brand principală (accent/butoane): #7889DF
+private val BrandColor = Color(0xFF7889DF)
+// Culoarea de fundal cerută pentru toată aplicația după onboarding: #8C96FF
+private val BackgroundColor = Color(0xFF8C96FF)
 
 private val AppColorScheme = lightColorScheme(
     primary = BrandColor,
@@ -17,11 +19,11 @@ private val AppColorScheme = lightColorScheme(
     onSecondary = Color.White,
     secondaryContainer = BrandColor,
     onSecondaryContainer = Color.White,
-    background = BrandColor,
+    background = BackgroundColor,
     onBackground = Color.White,
-    surface = BrandColor,
+    surface = BackgroundColor,
     onSurface = Color.White,
-    surfaceVariant = BrandColor.copy(alpha = 0.9f),
+    surfaceVariant = BackgroundColor.copy(alpha = 0.9f),
     onSurfaceVariant = Color.White,
     outline = Color(0xFFCBD5FF)
 )

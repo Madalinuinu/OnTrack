@@ -202,6 +202,52 @@ public final class HabitDao_Impl implements HabitDao {
     });
   }
 
+  @Override
+  public Flow<List<HabitEntity>> getAllHabits() {
+    final String _sql = "SELECT * FROM habits ORDER BY systemId, id";
+    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 0);
+    return CoroutinesRoom.createFlow(__db, false, new String[] {"habits"}, new Callable<List<HabitEntity>>() {
+      @Override
+      @NonNull
+      public List<HabitEntity> call() throws Exception {
+        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
+        try {
+          final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
+          final int _cursorIndexOfSystemId = CursorUtil.getColumnIndexOrThrow(_cursor, "systemId");
+          final int _cursorIndexOfTitle = CursorUtil.getColumnIndexOrThrow(_cursor, "title");
+          final int _cursorIndexOfFrequencyType = CursorUtil.getColumnIndexOrThrow(_cursor, "frequencyType");
+          final int _cursorIndexOfTargetCount = CursorUtil.getColumnIndexOrThrow(_cursor, "targetCount");
+          final List<HabitEntity> _result = new ArrayList<HabitEntity>(_cursor.getCount());
+          while (_cursor.moveToNext()) {
+            final HabitEntity _item;
+            final long _tmpId;
+            _tmpId = _cursor.getLong(_cursorIndexOfId);
+            final long _tmpSystemId;
+            _tmpSystemId = _cursor.getLong(_cursorIndexOfSystemId);
+            final String _tmpTitle;
+            _tmpTitle = _cursor.getString(_cursorIndexOfTitle);
+            final FrequencyType _tmpFrequencyType;
+            final String _tmp;
+            _tmp = _cursor.getString(_cursorIndexOfFrequencyType);
+            _tmpFrequencyType = __frequencyTypeConverter.fromString(_tmp);
+            final int _tmpTargetCount;
+            _tmpTargetCount = _cursor.getInt(_cursorIndexOfTargetCount);
+            _item = new HabitEntity(_tmpId,_tmpSystemId,_tmpTitle,_tmpFrequencyType,_tmpTargetCount);
+            _result.add(_item);
+          }
+          return _result;
+        } finally {
+          _cursor.close();
+        }
+      }
+
+      @Override
+      protected void finalize() {
+        _statement.release();
+      }
+    });
+  }
+
   @NonNull
   public static List<Class<?>> getRequiredConverters() {
     return Collections.emptyList();

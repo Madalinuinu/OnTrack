@@ -66,7 +66,7 @@ class TrackerViewModel(
     private val habitDao: HabitDao,
     private val habitLogDao: HabitLogDao,
     private val streakManager: StreakManager,
-    private val systemId: Long
+    val systemId: Long
 ) : ViewModel() {
 
     private val _system = MutableStateFlow<SystemEntity?>(null)

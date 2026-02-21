@@ -42,12 +42,16 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         val application = application as OnTrackApplication
+        val startPage = intent.getIntExtra("start_page", 0)
 
         setContent {
             val mainViewModel: MainViewModel = viewModel(
-                factory = MainViewModelFactory(application.userPreferences)
+                factory = MainViewModelFactory(application.userPreferences, startPage)
             )
             val userName by mainViewModel.userName.collectAsState(initial = "")
+            val trackTimeEnabled by mainViewModel.trackTimeEnabled.collectAsState(initial = true)
+            val skipOnboardingEnabled by mainViewModel.skipOnboardingEnabled.collectAsState(initial = false)
+            val initialPageToUse by mainViewModel.initialPageToUse.collectAsState(initial = 0)
 
             OnTrackTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
@@ -61,12 +65,19 @@ class MainActivity : ComponentActivity() {
                                 val homeViewModel: HomeViewModel = viewModel(
                                     factory = HomeViewModelFactory(
                                         database = application.database,
-                                        streakManager = application.streakManager
+                                        streakManager = application.streakManager,
+                                        userPreferences = application.userPreferences
                                     )
                                 )
                                 HomeScreen(
                                     viewModel = homeViewModel,
                                     userName = userName,
+                                    trackTimeEnabled = trackTimeEnabled,
+                                    onTrackTimeEnabledChange = { mainViewModel.setTrackTimeEnabled(it) },
+                                    skipOnboardingEnabled = skipOnboardingEnabled,
+                                    onSkipOnboardingEnabledChange = { mainViewModel.setSkipOnboardingEnabled(it) },
+                                    initialPage = initialPageToUse,
+                                    onConsumeInitialPage = { mainViewModel.consumeInitialPage() },
                                     onCreateSystemClick = { navController.navigate("create_system") },
                                     onOpenSystemClick = { systemId ->
                                         navController.navigate("tracker/$systemId")
@@ -76,6 +87,9 @@ class MainActivity : ComponentActivity() {
                                     },
                                     onEditSystemClick = { systemId ->
                                         navController.navigate("edit_system/$systemId")
+                                    },
+                                    onStartTimerFromToday = { systemId, habitId, habitTitle, totalSeconds ->
+                                        homeViewModel.startTimerFromToday(systemId, habitId, habitTitle, totalSeconds)
                                     }
                                 )
                             }

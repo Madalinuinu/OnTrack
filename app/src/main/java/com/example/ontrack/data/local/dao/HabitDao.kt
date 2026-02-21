@@ -16,6 +16,9 @@ interface HabitDao {
     @Query("SELECT * FROM habits WHERE systemId = :systemId ORDER BY id")
     fun getHabitsForSystem(systemId: Long): Flow<List<HabitEntity>>
 
+    @Query("SELECT * FROM habits ORDER BY systemId, id")
+    fun getAllHabits(): Flow<List<HabitEntity>>
+
     @Query("DELETE FROM habits WHERE systemId = :systemId")
     suspend fun deleteBySystemId(systemId: Long)
 

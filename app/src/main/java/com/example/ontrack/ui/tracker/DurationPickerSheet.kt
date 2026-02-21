@@ -13,7 +13,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -24,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.example.ontrack.ui.components.OnTrackPrimaryButton
 
 @Composable
 fun DurationPickerSheet(
@@ -48,7 +48,7 @@ fun DurationPickerSheet(
             .verticalScroll(rememberScrollState())
     ) {
         Text(
-            text = "Selectează durata activității",
+            text = "Select activity duration",
             style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.onSurface
         )
@@ -74,7 +74,7 @@ fun DurationPickerSheet(
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
             TimeColumn(
-                label = "Ore",
+                label = "Hrs",
                 value = selectedHours,
                 range = 0..99,
                 onValueChange = onHoursChange
@@ -100,14 +100,18 @@ fun DurationPickerSheet(
             horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterHorizontally)
         ) {
             TextButton(onClick = onCancel) {
-                Text("Cancel")
+                Text(
+                    text = "Cancel",
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.primary
+                )
             }
-            Button(
-                onClick = onStart,
-                enabled = canStart
-            ) {
-                Text("Start")
-            }
+            OnTrackPrimaryButton(
+                text = "Start",
+                enabled = canStart,
+                modifier = Modifier.height(44.dp),
+                onClick = onStart
+            )
         }
     }
 }
@@ -137,7 +141,7 @@ private fun TimeColumn(
         ) {
             Icon(
                 imageVector = Icons.Default.KeyboardArrowUp,
-                contentDescription = "Mărește"
+                contentDescription = "Increase"
             )
         }
         Box(
@@ -160,7 +164,7 @@ private fun TimeColumn(
         ) {
             Icon(
                 imageVector = Icons.Default.KeyboardArrowDown,
-                contentDescription = "Micșorează"
+                contentDescription = "Decrease"
             )
         }
     }

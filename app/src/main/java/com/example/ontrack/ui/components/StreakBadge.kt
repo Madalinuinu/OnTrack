@@ -1,7 +1,9 @@
 package com.example.ontrack.ui.components
 
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AcUnit
 import androidx.compose.material.icons.filled.LocalFireDepartment
@@ -34,15 +36,13 @@ fun StreakBadge(
                 isTodayComplete -> Color(0xFFFF6B35)
                 else -> Color(0xFF58CCE8)
             },
-            modifier = Modifier.size(24.dp)
+            modifier = Modifier.size(28.dp)
         )
+        Spacer(modifier = Modifier.width(4.dp))
         Text(
             text = "$displayNumber",
-            style = MaterialTheme.typography.titleSmall,
-            color = when {
-                isTodayComplete -> Color(0xFFE63900)
-                else -> Color(0xFF2E86AB)
-            }
+            style = MaterialTheme.typography.titleMedium,
+            color = Color.Black
         )
     }
 }

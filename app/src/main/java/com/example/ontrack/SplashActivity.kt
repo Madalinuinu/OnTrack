@@ -25,19 +25,20 @@ class SplashActivity : AppCompatActivity() {
             val application = application as OnTrackApplication
             val prefs = application.userPreferences
 
-            // Citim dacă este prima lansare înainte de a naviga mai departe
             val isFirstLaunch = prefs.isFirstLaunch.first()
+            val skipOnboarding = prefs.skipOnboardingEnabled.first()
 
-            // Afișăm splash-ul aproximativ 2 secunde înainte de ecranul de welcome.
             delay(2_000)
 
-            val nextActivity = if (isFirstLaunch) {
-                OnboardingActivity::class.java
-            } else {
-                OnboardingSecondActivity::class.java
+            val intent = when {
+                skipOnboarding -> Intent(this@SplashActivity, MainActivity::class.java).apply {
+                    putExtra("start_page", 0)
+                }
+                isFirstLaunch -> Intent(this@SplashActivity, OnboardingActivity::class.java)
+                else -> Intent(this@SplashActivity, OnboardingSecondActivity::class.java)
             }
 
-            startActivity(Intent(this@SplashActivity, nextActivity))
+            startActivity(intent)
             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
             finish()
         }

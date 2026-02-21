@@ -389,7 +389,7 @@ private fun DayDetailSheet(
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
-            text = "Habituri în această zi",
+            text = "Habits on this day",
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(top = 8.dp)
@@ -412,7 +412,7 @@ private fun DayDetailSheet(
                     modifier = Modifier.weight(1f)
                 )
                 Text(
-                    text = if (done) "Realizat" else "Încă nu a fost realizat",
+                    text = if (done) "Done" else "Not done yet",
                     style = MaterialTheme.typography.labelMedium,
                     color = if (done) GreenDone else BlueToday
                 )
@@ -427,7 +427,7 @@ private fun DayDetailSheet(
             }
         }
         Text(
-            text = "Raport – timp per habit",
+            text = "Report – time per habit",
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(top = 16.dp)
@@ -457,7 +457,7 @@ private fun DayDetailSheet(
         }
         Spacer(modifier = Modifier.height(24.dp))
         androidx.compose.material3.TextButton(onClick = onDismiss) {
-            Text("Închide")
+            Text("Close")
         }
     }
 }
@@ -470,7 +470,7 @@ private fun ProgressSection(
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
         Text(
-            text = "Progres sistem – total timp",
+            text = "System progress – total time",
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.onSurface
         )

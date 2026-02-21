@@ -44,11 +44,15 @@ drawable splash_gradient_serene
 drawable splash_icon
 drawable splash_screen
 drawable welcome
+id bottom_overlay
+id cloud_left
 id continue_button
 id get_started_button
 id guideline_button
 id guideline_title
+id meditation_illustration
 id name_input
+id rings_background
 id splash_icon
 id tagline_text
 id welcome_subtext
