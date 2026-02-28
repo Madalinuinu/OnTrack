@@ -1,0 +1,26 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="premiumGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="glossy" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.25" />
+      <stop offset="100%" style="stop-color:#ffffff;stop-opacity:0" />
+    </linearGradient>
+    <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="6"/>
+      <feOffset dx="0" dy="3" result="offsetblur"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.25"/></feComponentTransfer>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <circle cx="256" cy="256" r="200" fill="url(#premiumGradient)"/>
+  <circle cx="256" cy="256" r="200" fill="url(#glossy)"/>
+  <circle cx="256" cy="256" r="160" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="12"/>
+  <circle cx="256" cy="256" r="145" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="14"
+          stroke-dasharray="682 228" stroke-linecap="round" transform="rotate(-90 256 256)" filter="url(#shadow)"/>
+  <circle cx="256" cy="256" r="105" fill="rgba(255,255,255,0.95)" filter="url(#shadow)"/>
+  <path d="M 210 256 L 240 286 L 310 216" stroke="#667eea" stroke-width="22"
+        stroke-linecap="round" stroke-linejoin="round" fill="none" filter="url(#shadow)"/>
+</svg>
