@@ -68,8 +68,6 @@ import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
 
-private val Purple = Color(0xFF6C5CE7)
-private val PurpleLight = Color(0xFF6C5CE7).copy(alpha = 0.3f)
 private val CalendarCols = 7
 private val GreenDone = Color(0xFF58CC02)
 private val BlueToday = Color(0xFF58CCE8)
@@ -104,11 +102,7 @@ fun YourStatsScreen(
                             contentDescription = "Back"
                         )
                     }
-                },
-                colors = androidx.compose.material3.TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background,
-                    titleContentColor = Color.White
-                )
+                }
             )
         }
     ) { innerPadding ->
@@ -119,13 +113,12 @@ fun YourStatsScreen(
                     .padding(innerPadding),
                 contentAlignment = Alignment.Center
             ) {
-                CircularProgressIndicator(color = Purple)
+                CircularProgressIndicator()
             }
         } else {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Color.White)
                     .padding(innerPadding)
                     .padding(horizontal = 20.dp)
                     .verticalScroll(rememberScrollState())
@@ -291,7 +284,7 @@ private fun HeaderRow(
     val iconTint = when {
         isVacationDay -> VacationOrange
         allGoalsCompleteToday -> Color(0xFFFF6B35)
-        else -> Color(0xFF58CCE8)
+        else -> Color(0xFFB8E6F4)
     }
     Row(
         modifier = modifier
@@ -587,7 +580,7 @@ private fun GoalTimeRow(
             Text(
                 text = timeStr,
                 style = MaterialTheme.typography.titleMedium.copy(fontSize = 16.sp),
-                color = Purple
+                color = Color.Black
             )
         }
     }
