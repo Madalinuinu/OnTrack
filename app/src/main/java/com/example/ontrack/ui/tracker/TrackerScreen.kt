@@ -54,6 +54,7 @@ fun TrackerScreen(
     soundEnabled: Boolean,
     onNavigateBack: () -> Unit,
     onActivityClick: () -> Unit,
+    onStartTimer: (systemId: Long, habitId: Long, habitTitle: String, totalSeconds: Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val system by viewModel.system.collectAsState(initial = null)
@@ -88,7 +89,7 @@ fun TrackerScreen(
     LaunchedEffect(Unit) {
         val pending = com.example.ontrack.PendingTimer.consume()
         if (pending != null && pending.systemId == viewModel.systemId) {
-            viewModel.startTimer(pending.habitId, pending.habitTitle, pending.totalSeconds)
+            onStartTimer(viewModel.systemId, pending.habitId, pending.habitTitle, pending.totalSeconds)
         }
     }
 
@@ -205,11 +206,7 @@ fun TrackerScreen(
                     val totalSeconds = (selectedHours * 3600 + selectedMinutes * 60).coerceAtLeast(120)
                     val habitId = habitForDuration!!.habit.id
                     viewModel.saveLastTimerDuration(habitId, totalSeconds)
-                    viewModel.startTimer(
-                        habitId,
-                        habitForDuration!!.habit.title,
-                        totalSeconds
-                    )
+                    onStartTimer(viewModel.systemId, habitId, habitForDuration!!.habit.title, totalSeconds)
                     showDurationSheet = false
                     habitForDuration = null
                 },

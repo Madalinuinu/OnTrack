@@ -2,6 +2,7 @@ package com.example.ontrack.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.ontrack.data.local.dao.SystemDao
 import com.example.ontrack.data.preferences.UserPreferences
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -13,8 +14,22 @@ import kotlinx.coroutines.launch
 
 class MainViewModel(
     private val userPreferences: UserPreferences,
+    private val systemDao: SystemDao,
     initialPageFromIntent: Int = 0
 ) : ViewModel() {
+
+    /** null = still loading (determining from system count); 0 = Goals, 1 = Today */
+    private val _initialPageToUse = MutableStateFlow<Int?>(if (initialPageFromIntent != 0) initialPageFromIntent else null)
+    val initialPageToUse: StateFlow<Int?> = _initialPageToUse.asStateFlow()
+
+    init {
+        if (initialPageFromIntent == 0) {
+            viewModelScope.launch {
+                val systems = systemDao.getAllSystems().first()
+                _initialPageToUse.value = if (systems.isNotEmpty()) 1 else 0
+            }
+        }
+    }
 
     /** null = preferences not loaded yet, true = show onboarding, false = show app */
     val isFirstLaunch: StateFlow<Boolean?> = userPreferences.isFirstLaunch
@@ -94,9 +109,6 @@ class MainViewModel(
             initialValue = -1
         )
 
-    private val _initialPageToUse = MutableStateFlow(initialPageFromIntent)
-    val initialPageToUse: StateFlow<Int> = _initialPageToUse.asStateFlow()
-
     fun setTrackTimeEnabled(enabled: Boolean) {
         viewModelScope.launch {
             userPreferences.setTrackTimeEnabled(enabled)
@@ -142,7 +154,7 @@ class MainViewModel(
     }
 
     fun consumeInitialPage() {
-        _initialPageToUse.value = 0
+        _initialPageToUse.value = _initialPageToUse.value ?: 0
     }
 
     /** Call before navigating to home so the Today tab is shown (e.g. from Test screen). */

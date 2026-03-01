@@ -21,11 +21,13 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import com.example.ontrack.service.TimerStateHolder
 import com.example.ontrack.util.EffectiveDate
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.util.Calendar
 import kotlin.math.max
+import kotlinx.coroutines.flow.flow
 
 /** Active countdown for one habit. */
 data class ActiveTimer(
@@ -108,9 +110,25 @@ class TrackerViewModel(
         initialValue = false
     )
 
-    private var timerJob: Job? = null
-    private val _activeTimer = MutableStateFlow<ActiveTimer?>(null)
-    val activeTimer: StateFlow<ActiveTimer?> = _activeTimer.asStateFlow()
+    /** Timer state comes from TimerForegroundService via TimerStateHolder (survives app kill). */
+    val activeTimer: StateFlow<ActiveTimer?> = flow {
+        while (true) {
+            val h = TimerStateHolder
+            emit(
+                if (h.isActive) ActiveTimer(
+                    habitId = h.habitId,
+                    habitTitle = h.habitTitle,
+                    remainingSeconds = h.remainingSeconds,
+                    totalSeconds = h.totalSeconds
+                ) else null
+            )
+            kotlinx.coroutines.delay(1000)
+        }
+    }.stateIn(
+        scope = viewModelScope,
+        started = kotlinx.coroutines.flow.SharingStarted.WhileSubscribed(5_000),
+        initialValue = null
+    )
 
     private val _timerFinished = MutableStateFlow<TimerFinished?>(null)
     val timerFinished: StateFlow<TimerFinished?> = _timerFinished.asStateFlow()
@@ -178,44 +196,13 @@ class TrackerViewModel(
         }
     }
 
+    /** Timer is started by the Activity (TimerForegroundService); this is a no-op for compatibility. */
     fun startTimer(habitId: Long, habitTitle: String, totalSeconds: Int) {
-        timerJob?.cancel()
-        val seconds = totalSeconds.coerceIn(1, 99 * 3600)
-        _activeTimer.value = ActiveTimer(
-            habitId = habitId,
-            habitTitle = habitTitle,
-            remainingSeconds = seconds,
-            totalSeconds = seconds
-        )
-        timerJob = viewModelScope.launch {
-            var remaining = seconds
-            while (remaining > 0) {
-                delay(1000L)
-                remaining--
-                _activeTimer.value = _activeTimer.value?.copy(remainingSeconds = remaining)
-            }
-            val durationMinutes = seconds / 60
-            withContext(Dispatchers.IO) {
-                habitLogDao.completeWithDuration(habitId, todayEpochDay, durationMinutes)
-                streakManager.refreshStreak(systemId)
-            }
-            _isTodayComplete.value = streakManager.isDayComplete(systemId, todayEpochDay)
-            _freezeCount.value = streakManager.getFreezeCount(systemId)
-            _justCompletedHabitIds.value = _justCompletedHabitIds.value + habitId
-            _activeTimer.value = null
-            _timerFinished.value = TimerFinished(
-                habitId = habitId,
-                habitTitle = habitTitle,
-                durationMinutes = durationMinutes
-            )
-            timerJob = null
-        }
+        // Service is started from Activity; state is read from TimerStateHolder via activeTimer flow
     }
 
     fun cancelTimer() {
-        timerJob?.cancel()
-        timerJob = null
-        _activeTimer.value = null
+        // Cancel is sent to TimerForegroundService from Activity if needed
     }
 
     fun clearTimerFinished() {

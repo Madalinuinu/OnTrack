@@ -125,6 +125,7 @@ fun YourStatsScreen(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
+                    .background(Color.White)
                     .padding(innerPadding)
                     .padding(horizontal = 20.dp)
                     .verticalScroll(rememberScrollState())

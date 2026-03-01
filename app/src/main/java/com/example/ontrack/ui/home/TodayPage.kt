@@ -77,6 +77,8 @@ import androidx.compose.material3.SheetValue
 fun TodayPage(
     viewModel: HomeViewModel,
     onStartTimer: (systemId: Long, habitId: Long, habitTitle: String, totalSeconds: Int) -> Unit,
+    onPauseTimer: () -> Unit = {},
+    onResumeTimer: () -> Unit = {},
     onCompleteHabit: (systemId: Long, habitId: Long) -> Unit,
     vacationModeEnabled: Boolean = false,
     vacationModeFromEpochDay: Long = -1L,
@@ -301,8 +303,8 @@ fun TodayPage(
                                     selectedMinutes = 2
                                 }
                             },
-                            onPauseClick = { viewModel.pauseTodayTimer() },
-                            onResumeClick = { viewModel.resumeTodayTimer() }
+                            onPauseClick = onPauseTimer,
+                            onResumeClick = onResumeTimer
                         )
                     }
                 }

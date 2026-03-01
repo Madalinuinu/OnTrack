@@ -4,8 +4,11 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.ui.Alignment
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -36,6 +39,7 @@ import com.example.ontrack.ui.theme.OnTrackTheme
 import com.example.ontrack.ui.tracker.TrackerScreen
 import com.example.ontrack.ui.tracker.TrackerViewModel
 import com.example.ontrack.ui.tracker.TrackerViewModelFactory
+import com.example.ontrack.service.TimerForegroundService
 import com.example.ontrack.ui.yourstats.YourStatsScreen
 import com.example.ontrack.ui.yourstats.YourStatsViewModel
 import com.example.ontrack.ui.yourstats.YourStatsViewModelFactory
@@ -47,10 +51,11 @@ class MainActivity : ComponentActivity() {
 
         val application = application as OnTrackApplication
         val startPage = intent.getIntExtra("start_page", 0)
+        val activity = this
 
         setContent {
             val mainViewModel: MainViewModel = viewModel(
-                factory = MainViewModelFactory(application.userPreferences, startPage)
+                factory = MainViewModelFactory(application.userPreferences, application.database.systemDao(), startPage)
             )
             val userName by mainViewModel.userName.collectAsState(initial = "")
             val skipOnboardingEnabled by mainViewModel.skipOnboardingEnabled.collectAsState(initial = false)
@@ -59,7 +64,7 @@ class MainActivity : ComponentActivity() {
             val vacationModeEnabled by mainViewModel.vacationModeEnabled.collectAsState(initial = false)
             val vacationModeFromEpochDay by mainViewModel.vacationModeFromEpochDay.collectAsState(initial = -1L)
             val persistedVacationEpochDays by mainViewModel.persistedVacationEpochDays.collectAsState(initial = emptySet())
-            val initialPageToUse by mainViewModel.initialPageToUse.collectAsState(initial = 0)
+            val initialPageToUse by mainViewModel.initialPageToUse.collectAsState(initial = null)
             val sleepBedtimeMinutes by mainViewModel.sleepBedtimeMinutes.collectAsState(initial = -1)
             val sleepWakeMinutes by mainViewModel.sleepWakeMinutes.collectAsState(initial = -1)
 
@@ -79,39 +84,52 @@ class MainActivity : ComponentActivity() {
                                         userPreferences = application.userPreferences
                                     )
                                 )
-                                HomeScreen(
-                                    viewModel = homeViewModel,
-                                    userName = userName,
-                                    skipOnboardingEnabled = skipOnboardingEnabled,
-                                    onSkipOnboardingEnabledChange = { mainViewModel.setSkipOnboardingEnabled(it) },
-                                    notificationsEnabled = notificationsEnabled,
-                                    onNotificationsEnabledChange = { mainViewModel.setNotificationsEnabled(it) },
-                                    soundEnabled = soundEnabled,
-                                    onSoundEnabledChange = { mainViewModel.setSoundEnabled(it) },
-                                    vacationModeEnabled = vacationModeEnabled,
-                                    vacationModeFromEpochDay = vacationModeFromEpochDay,
-                                    persistedVacationEpochDays = persistedVacationEpochDays,
-                                    onVacationModeEnabledChange = { mainViewModel.setVacationModeEnabled(it) },
-                                    initialPage = initialPageToUse,
-                                    onConsumeInitialPage = { mainViewModel.consumeInitialPage() },
-                                    onCreateSystemClick = { navController.navigate("create_system") },
-                                    onOpenSystemClick = { systemId ->
-                                        navController.navigate("tracker/$systemId")
-                                    },
-                                    onActivityClick = { systemId ->
-                                        navController.navigate("activity/$systemId")
-                                    },
-                                    onEditSystemClick = { systemId ->
-                                        navController.navigate("edit_system/$systemId")
-                                    },
-                                    onYourStatsClick = { navController.navigate("your_stats") },
-                                    sleepBedtimeMinutes = sleepBedtimeMinutes,
-                                    sleepWakeMinutes = sleepWakeMinutes,
-                                    onSetSleepTimes = { bed, wake -> mainViewModel.setSleepTimes(bed, wake) },
-                                    onStartTimerFromToday = { systemId, habitId, habitTitle, totalSeconds ->
-                                        homeViewModel.startTimerFromToday(systemId, habitId, habitTitle, totalSeconds)
+                                if (initialPageToUse == null) {
+                                    Box(
+                                        modifier = Modifier.fillMaxSize(),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        CircularProgressIndicator()
                                     }
-                                )
+                                } else {
+                                    val page = initialPageToUse ?: 0
+                                    HomeScreen(
+                                        viewModel = homeViewModel,
+                                        userName = userName,
+                                        skipOnboardingEnabled = skipOnboardingEnabled,
+                                        onSkipOnboardingEnabledChange = { mainViewModel.setSkipOnboardingEnabled(it) },
+                                        notificationsEnabled = notificationsEnabled,
+                                        onNotificationsEnabledChange = { mainViewModel.setNotificationsEnabled(it) },
+                                        soundEnabled = soundEnabled,
+                                        onSoundEnabledChange = { mainViewModel.setSoundEnabled(it) },
+                                        vacationModeEnabled = vacationModeEnabled,
+                                        vacationModeFromEpochDay = vacationModeFromEpochDay,
+                                        persistedVacationEpochDays = persistedVacationEpochDays,
+                                        onVacationModeEnabledChange = { mainViewModel.setVacationModeEnabled(it) },
+                                        initialPage = page,
+                                        onConsumeInitialPage = { mainViewModel.consumeInitialPage() },
+                                        onCreateSystemClick = { navController.navigate("create_system") },
+                                        onOpenSystemClick = { systemId ->
+                                            navController.navigate("tracker/$systemId")
+                                        },
+                                        onActivityClick = { systemId ->
+                                            navController.navigate("activity/$systemId")
+                                        },
+                                        onEditSystemClick = { systemId ->
+                                            navController.navigate("edit_system/$systemId")
+                                        },
+                                        onYourStatsClick = { navController.navigate("your_stats") },
+                                        sleepBedtimeMinutes = sleepBedtimeMinutes,
+                                        sleepWakeMinutes = sleepWakeMinutes,
+                                        onSetSleepTimes = { bed, wake -> mainViewModel.setSleepTimes(bed, wake) },
+                                        onStartTimerFromToday = { systemId, habitId, habitTitle, totalSeconds ->
+                                            TimerForegroundService.start(activity, habitId, systemId, habitTitle, totalSeconds)
+                                            TimerForegroundService.scheduleExpiredAlarm(activity, habitId, systemId, habitTitle, totalSeconds)
+                                        },
+                                        onPauseTimer = { TimerForegroundService.pause(activity) },
+                                        onResumeTimer = { TimerForegroundService.resume(activity) }
+                                    )
+                                }
                             }
                             composable("create_system") {
                                 val createViewModel: CreateSystemViewModel = viewModel(
@@ -161,7 +179,11 @@ class MainActivity : ComponentActivity() {
                                     notificationsEnabled = notificationsEnabled,
                                     soundEnabled = soundEnabled,
                                     onNavigateBack = { navController.popBackStack() },
-                                    onActivityClick = { navController.navigate("activity/$systemId") }
+                                    onActivityClick = { navController.navigate("activity/$systemId") },
+                                    onStartTimer = { sid, habitId, habitTitle, totalSeconds ->
+                                        TimerForegroundService.start(activity, habitId, sid, habitTitle, totalSeconds)
+                                        TimerForegroundService.scheduleExpiredAlarm(activity, habitId, sid, habitTitle, totalSeconds)
+                                    }
                                 )
                             }
                             composable(

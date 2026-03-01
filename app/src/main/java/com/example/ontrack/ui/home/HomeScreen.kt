@@ -112,6 +112,8 @@ fun HomeScreen(
     sleepWakeMinutes: Int = -1,
     onSetSleepTimes: (bedtimeMinutes: Int, wakeMinutes: Int) -> Unit = { _, _ -> },
     onStartTimerFromToday: (systemId: Long, habitId: Long, habitTitle: String, totalSeconds: Int) -> Unit,
+    onPauseTimer: () -> Unit = {},
+    onResumeTimer: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val systems by viewModel.systems.collectAsState(initial = emptyList())
@@ -260,7 +262,7 @@ fun HomeScreen(
                         )
                         Spacer(modifier = Modifier.width(16.dp))
                         Text(
-                            text = "Challenges",
+                            text = "Goals",
                             style = MaterialTheme.typography.titleLarge,
                             color = Color.Black
                         )
@@ -539,7 +541,7 @@ Text(
                 userScrollEnabled = true
             ) { page ->
                 when (page) {
-                    0 -> ChallengesPage(
+                    0 -> GoalsPage(
                         systems = systems,
                         selectedSystemId = selectedSystemId,
                         todayCompleteMap = todayCompleteMap,
@@ -554,6 +556,8 @@ Text(
                     1 -> TodayPage(
                         viewModel = viewModel,
                         onStartTimer = onStartTimerFromToday,
+                        onPauseTimer = onPauseTimer,
+                        onResumeTimer = onResumeTimer,
                         onCompleteHabit = { systemId, habitId -> viewModel.completeHabitToday(systemId, habitId) },
                         vacationModeEnabled = vacationModeEnabled,
                         vacationModeFromEpochDay = vacationModeFromEpochDay,
@@ -625,7 +629,7 @@ private fun DrawerHeader(
 }
 
 @Composable
-private fun ChallengesPage(
+private fun GoalsPage(
     systems: List<SystemEntity>,
     selectedSystemId: Long?,
     todayCompleteMap: Map<Long, Boolean>,
@@ -665,7 +669,7 @@ private fun ChallengesPage(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "CHALLENGES",
+                        text = "GOALS",
                         style = MaterialTheme.typography.headlineMedium.copy(
                             fontSize = 28.sp,
                             fontWeight = FontWeight.Bold,

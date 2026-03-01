@@ -31,9 +31,11 @@ class StreakManager(
     /**
      * True if the system counts as "day complete" for streak:
      * - All DAILY habits completed that day.
-     * - Each SPECIFIC_DAYS (x/week): if it's no longer possible to reach target by Sunday,
-     *   then this day must be completed for that habit (otherwise the day is "frozen").
-     * - WEEKLY: at least one completion in the current week by this day.
+     * - WEEKLY (once per week): same as SPECIFIC_DAYS with target 1 — at start of week (0/1) the day counts as
+     *   on-track; only on the last day of the week (Sunday) must it be completed if not done yet.
+     * - SPECIFIC_DAYS (x/week): at start of week (e.g. 0/3) the day counts as on-track. When remaining completions
+     *   needed >= days left in week (e.g. Friday 2/5 → need 3, 3 days left), at least one completion is required
+     *   on that day to maintain streak.
      */
     suspend fun isDayComplete(systemId: Long, epochDay: Long): Boolean {
         val habits = habitDao.getHabitsForSystem(systemId).first()
@@ -43,7 +45,6 @@ class StreakManager(
         val dayOfWeek = date.dayOfWeek.value // 1 = Monday, 7 = Sunday
         val weekStartEpoch = epochDay - (dayOfWeek - 1)
         val weekEndEpoch = weekStartEpoch + 6
-        // Full week (Mon–Sun) so WEEKLY: "done once this week" counts for every day in that week
         val weekLogs = habitLogDao.getHabitLogsForDateRange(weekStartEpoch, weekEndEpoch).first()
         val completedCountByHabit = weekLogs
             .filter { it.isCompleted }
@@ -57,15 +58,26 @@ class StreakManager(
                     if (!log.isCompleted) return false
                 }
                 FrequencyType.WEEKLY -> {
-                    val count = completedCountByHabit[habit.id] ?: 0
-                    if (count < 1) return false
+                    // Same logic as SPECIFIC_DAYS with target 1: on-track until last day, then must complete that day
+                    val completionsSoFar = completedCountByHabit[habit.id] ?: 0
+                    if (completionsSoFar >= 1) continue
+                    val need = 1
+                    val daysLeftInWeek = (weekEndEpoch - epochDay + 1).toInt()
+                    if (need >= daysLeftInWeek) {
+                        val log = habitLogDao.getLog(habit.id, epochDay) ?: return false
+                        if (!log.isCompleted) return false
+                    }
                 }
                 FrequencyType.SPECIFIC_DAYS -> {
                     val completionsSoFar = completedCountByHabit[habit.id] ?: 0
+                    if (completionsSoFar >= habit.targetCount) {
+                        // Already reached weekly target → day counts as complete
+                        continue
+                    }
                     val need = habit.targetCount - completionsSoFar
-                    val daysLeftInWeek = (weekEndEpoch - epochDay + 1).toInt()
-                    if (need > daysLeftInWeek) {
-                        // Cannot reach target by Sunday → this day must be completed or it counts as freeze
+                    val daysLeftInWeek = (weekEndEpoch - epochDay + 1).toInt() // including today
+                    // If we need at least as many completions as days left, we must do at least one today to stay on track
+                    if (need >= daysLeftInWeek) {
                         val log = habitLogDao.getLog(habit.id, epochDay) ?: return false
                         if (!log.isCompleted) return false
                     }

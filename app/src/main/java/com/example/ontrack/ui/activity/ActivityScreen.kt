@@ -140,8 +140,9 @@ fun ActivityScreen(
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Spacer(modifier = Modifier.height(8.dp))
-                if (uiState.habits.isNotEmpty()) {
-                    for (habit in uiState.habits) {
+                val habitsWithTrackTime = uiState.habits.filter { it.trackTimeEnabled }
+                if (habitsWithTrackTime.isNotEmpty()) {
+                    for (habit in habitsWithTrackTime) {
                         HabitTimeRow(
                             habitName = habit.title,
                             totalMinutes = uiState.totalMinutesByHabitId[habit.id] ?: 0
@@ -150,7 +151,7 @@ fun ActivityScreen(
                     }
                 } else {
                     Text(
-                        text = "No tracked time yet. Complete habits with timer to see time here.",
+                        text = "No habits with timer. Enable track time on a habit to see time here.",
                         style = MaterialTheme.typography.bodyMedium,
                         color = Color.Gray,
                         modifier = Modifier.padding(vertical = 8.dp)

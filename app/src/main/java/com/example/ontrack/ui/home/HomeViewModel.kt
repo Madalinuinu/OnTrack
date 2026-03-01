@@ -30,7 +30,9 @@ import java.time.ZoneId
 import com.example.ontrack.data.local.entity.FrequencyType
 import com.example.ontrack.data.preferences.UserPreferences
 import com.example.ontrack.data.local.entity.HabitLogEntity
+import com.example.ontrack.service.TimerStateHolder
 import com.example.ontrack.util.EffectiveDate
+import kotlinx.coroutines.flow.flow
 
 data class TodayTaskItem(
     val habit: com.example.ontrack.data.local.entity.HabitEntity,
@@ -177,9 +179,27 @@ class HomeViewModel(
         initialValue = emptyList()
     )
 
-    private var todayTimerJob: Job? = null
-    private val _todayActiveTimer = MutableStateFlow<TodayActiveTimer?>(null)
-    val todayActiveTimer: StateFlow<TodayActiveTimer?> = _todayActiveTimer.asStateFlow()
+    /** Timer state comes from TimerForegroundService via TimerStateHolder (survives app kill). */
+    val todayActiveTimer: StateFlow<TodayActiveTimer?> = flow {
+        while (true) {
+            val h = TimerStateHolder
+            emit(
+                if (h.isActive) TodayActiveTimer(
+                    habitId = h.habitId,
+                    systemId = h.systemId,
+                    habitTitle = h.habitTitle,
+                    totalSeconds = h.totalSeconds,
+                    remainingSeconds = h.remainingSeconds,
+                    isPaused = h.isPaused
+                ) else null
+            )
+            delay(1000)
+        }
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = null
+    )
 
     private val _todayTimerFinished = MutableStateFlow<TodayTimerFinished?>(null)
     val todayTimerFinished: StateFlow<TodayTimerFinished?> = _todayTimerFinished.asStateFlow()
@@ -320,58 +340,20 @@ viewModelScope.launch {
         }
     }
 
-    /** Start timer from Today page (no navigation). */
+    /** Timer is started by the Activity (TimerForegroundService); this is a no-op for compatibility. */
     fun startTimerFromToday(systemId: Long, habitId: Long, habitTitle: String, totalSeconds: Int) {
-        todayTimerJob?.cancel()
-        val seconds = totalSeconds.coerceIn(1, 99 * 3600)
-        _todayActiveTimer.value = TodayActiveTimer(
-            habitId = habitId,
-            systemId = systemId,
-            habitTitle = habitTitle,
-            totalSeconds = seconds,
-            remainingSeconds = seconds,
-            isPaused = false
-        )
-        todayTimerJob = viewModelScope.launch {
-            var remaining = seconds
-            while (remaining > 0 && isActive) {
-                val current = _todayActiveTimer.value ?: break
-                if (current.isPaused) {
-                    delay(300L)
-                    continue
-                }
-                delay(1000L)
-                remaining--
-                _todayActiveTimer.value = _todayActiveTimer.value?.copy(remainingSeconds = remaining)
-            }
-            val t = _todayActiveTimer.value
-            if (t != null && remaining <= 0) {
-                val durationMinutes = t.totalSeconds / 60
-                withContext(Dispatchers.IO) {
-                    habitLogDao.completeWithDuration(t.habitId, todayEpochDay, durationMinutes)
-                    streakManager.refreshStreak(t.systemId)
-                }
-                refreshTodayComplete()
-                _todayTimerFinished.value = TodayTimerFinished(habitTitle = t.habitTitle)
-            }
-            _todayActiveTimer.value = null
-            todayTimerJob = null
-        }
+        // Service is started from Activity; state is read from TimerStateHolder via todayActiveTimer flow
     }
 
     fun clearTodayTimerFinished() {
         _todayTimerFinished.value = null
     }
 
-    fun pauseTodayTimer() {
-        val t = _todayActiveTimer.value ?: return
-        _todayActiveTimer.value = t.copy(isPaused = true)
-    }
+    /** Pause is sent to TimerForegroundService from Activity. */
+    fun pauseTodayTimer() {}
 
-    fun resumeTodayTimer() {
-        val t = _todayActiveTimer.value ?: return
-        _todayActiveTimer.value = t.copy(isPaused = false)
-    }
+    /** Resume is sent to TimerForegroundService from Activity. */
+    fun resumeTodayTimer() {}
 
     fun saveLastTimerDuration(habitId: Long, totalSeconds: Int) {
         viewModelScope.launch {
