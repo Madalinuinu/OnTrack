@@ -69,12 +69,6 @@ fun TrackerScreen(
 
     var showDurationSheet by remember { mutableStateOf(false) }
     var habitForDuration by remember { mutableStateOf<TrackerItem?>(null) }
-    var selectedHours by remember { mutableIntStateOf(0) }
-    var selectedMinutes by remember { mutableIntStateOf(2) }
-    val sheetState = rememberModalBottomSheetState(
-        skipPartiallyExpanded = true,
-        confirmValueChange = { it != SheetValue.Hidden }
-    )
     val context = LocalContext.current
 
     LaunchedEffect(timerFinished, soundEnabled, notificationsEnabled) {
@@ -157,27 +151,13 @@ fun TrackerScreen(
                         modifier = Modifier.fillMaxSize()
                     ) {
                         items(trackerItems, key = { it.habit.id }) { item ->
-                            val timerForThis = activeTimer?.takeIf { it.habitId == item.habit.id }
                             TrackerRow(
                                 item = item,
                                 daysLeft = daysLeft,
-                                activeTimer = timerForThis,
+                                activeTimer = null,
                                 onClick = {
                                     if (item.isCompletedToday) return@TrackerRow
-                                    if (item.habit.trackTimeEnabled) {
-                                        habitForDuration = item
-                                        val last = item.habit.lastTimerDurationSeconds
-                                        if (last != null && last >= 120) {
-                                            selectedHours = last / 3600
-                                            selectedMinutes = (last % 3600) / 60
-                                        } else {
-                                            selectedHours = 0
-                                            selectedMinutes = 2
-                                        }
-                                        showDurationSheet = true
-                                    } else {
-                                        viewModel.toggleHabit(item.habit.id)
-                                    }
+                                    viewModel.toggleHabit(item.habit.id)
                                 }
                             )
                         }
@@ -187,36 +167,7 @@ fun TrackerScreen(
         }
     }
 
-    if (showDurationSheet && habitForDuration != null) {
-        ModalBottomSheet(
-            onDismissRequest = {
-                showDurationSheet = false
-                habitForDuration = null
-            },
-            sheetState = sheetState,
-            dragHandle = null
-        ) {
-            DurationPickerSheet(
-                habitTitle = habitForDuration!!.habit.title,
-                selectedHours = selectedHours,
-                selectedMinutes = selectedMinutes,
-                onHoursChange = { selectedHours = it },
-                onMinutesChange = { selectedMinutes = it },
-                onStart = {
-                    val totalSeconds = (selectedHours * 3600 + selectedMinutes * 60).coerceAtLeast(120)
-                    val habitId = habitForDuration!!.habit.id
-                    viewModel.saveLastTimerDuration(habitId, totalSeconds)
-                    onStartTimer(viewModel.systemId, habitId, habitForDuration!!.habit.title, totalSeconds)
-                    showDurationSheet = false
-                    habitForDuration = null
-                },
-                onCancel = {
-                    showDurationSheet = false
-                    habitForDuration = null
-                }
-            )
-        }
-    }
+    // Track time via timers is disabled in Tracker; tapping a row just toggles completion.
 }
 
 private fun frequencyLabel(item: TrackerItem): String = when (item.habit.frequencyType) {

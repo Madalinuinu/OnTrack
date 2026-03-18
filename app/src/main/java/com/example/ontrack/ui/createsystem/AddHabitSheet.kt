@@ -45,7 +45,6 @@ fun AddHabitSheet(
 ) {
     val isEdit = initial != null && onUpdate != null
     var title by remember(initial) { mutableStateOf(initial?.title ?: "") }
-    var trackTimeEnabled by remember(initial) { mutableStateOf(initial?.trackTimeEnabled ?: false) }
     var frequency by remember(initial) { mutableStateOf(initial?.frequencyType ?: FrequencyType.DAILY) }
     var timesPerWeek by remember(initial) { mutableStateOf(initial?.targetCount?.coerceIn(1, 7) ?: 3) }
 
@@ -93,27 +92,6 @@ fun AddHabitSheet(
                 focusedPlaceholderColor = Color.Gray,
                 unfocusedPlaceholderColor = Color.Gray
             )
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "Track time",
-                style = MaterialTheme.typography.titleMedium.copy(fontSize = 16.sp),
-                color = Color.DarkGray
-            )
-            Switch(
-                checked = trackTimeEnabled,
-                onCheckedChange = { trackTimeEnabled = it }
-            )
-        }
-        Text(
-            text = if (trackTimeEnabled) "Timer appears when you tap this task." else "Tap completes directly (no timer).",
-            style = MaterialTheme.typography.bodySmall,
-            color = Color.Gray
         )
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -188,7 +166,7 @@ fun AddHabitSheet(
                             title = title.trim(),
                             frequencyType = frequency,
                             targetCount = if (frequency == FrequencyType.SPECIFIC_DAYS) timesPerWeek else 1,
-                            trackTimeEnabled = trackTimeEnabled
+                            trackTimeEnabled = false
                         )
                         if (isEdit) onUpdate!!(item) else onAdd(item)
                         onDismiss()

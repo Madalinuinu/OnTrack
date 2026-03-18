@@ -47,8 +47,10 @@ data class YourStatsUiState(
     val chartData: List<DayTotalItem> = emptyList(),
     val selectedRange: StatsRange = StatsRange.LAST_7_DAYS,
     val completedEpochDays: Set<Long> = emptySet(),
-    /** First day ever completed (green); days before this are shown gray (before app usage). */
+    /** First day ever completed (kept for potential future use). */
     val firstCompletedEpoch: Long? = null,
+    /** First day when app started being used (min system.startDate as epochDay). */
+    val firstUsageEpoch: Long? = null,
     val pausedEpochDays: Set<Long> = emptySet(),
     val todayEpoch: Long = 0L,
     val totalDaysCompleted: Int = 0,
@@ -88,7 +90,8 @@ class YourStatsViewModel(
         val globalStreakDays: Int,
         val habitIdsFiltered: List<Long>,
         val logs: List<HabitLogEntity>,
-        val goalsWithHabits: List<Pair<SystemEntity, List<HabitEntity>>>
+        val goalsWithHabits: List<Pair<SystemEntity, List<HabitEntity>>>,
+        val firstUsageEpoch: Long?
     )
 
     init {
@@ -107,9 +110,11 @@ class YourStatsViewModel(
                     val habitsBySystem = habits.groupBy { it.systemId }
                     val logsByDate = logs.filter { it.isCompleted }.groupBy { it.date }
                     val startEpoch = systemsFiltered.minOfOrNull { sys ->
-                        java.time.Instant.ofEpochMilli(sys.startDate).atZone(java.time.ZoneId.systemDefault()).toLocalDate().toEpochDay()
-                    } ?: todayEpoch
-                    val rangeStart = maxOf(startEpoch, todayEpoch - 365)
+                        java.time.Instant.ofEpochMilli(sys.startDate)
+                            .atZone(java.time.ZoneId.systemDefault())
+                            .toLocalDate()
+                            .toEpochDay()
+                    }
                     val goalsWithHabits = systemsFiltered.map { s ->
                         s to (habitsBySystem[s.id] ?: emptyList())
                     }
@@ -136,7 +141,8 @@ class YourStatsViewModel(
                         globalStreakDays = 0, // filled in flatMapLatest after refreshGlobalStreak
                         habitIdsFiltered = habitIdsFiltered,
                         logs = logs,
-                        goalsWithHabits = goalsWithHabits
+                        goalsWithHabits = goalsWithHabits,
+                        firstUsageEpoch = startEpoch
                     )
                 },
                 userPreferences.persistedVacationEpochDays
@@ -145,10 +151,11 @@ class YourStatsViewModel(
             }.flatMapLatest { data ->
                 flow {
                     val systems = data.goalTimeItems.map { it.system }
-                    val rangeStart = data.goalTimeItems.minOfOrNull { g ->
-                        java.time.Instant.ofEpochMilli(g.system.startDate)
-                            .atZone(java.time.ZoneId.systemDefault()).toLocalDate().toEpochDay()
-                    } ?: data.todayEpoch
+                    val rangeStart = data.firstUsageEpoch
+                        ?: data.goalTimeItems.minOfOrNull { g ->
+                            java.time.Instant.ofEpochMilli(g.system.startDate)
+                                .atZone(java.time.ZoneId.systemDefault()).toLocalDate().toEpochDay()
+                        } ?: data.todayEpoch
                     val rangeStartBounded = maxOf(rangeStart, data.todayEpoch - 365)
                     val completed = mutableSetOf<Long>()
                     for (day in rangeStartBounded..data.todayEpoch) {
@@ -185,6 +192,7 @@ class YourStatsViewModel(
                     selectedRange = selectedRange,
                     completedEpochDays = data.completedEpochDays,
                     firstCompletedEpoch = firstCompletedEpoch,
+                    firstUsageEpoch = data.firstUsageEpoch,
                     pausedEpochDays = data.pausedEpochDays,
                     todayEpoch = data.todayEpoch,
                     totalDaysCompleted = data.completedEpochDays.size,
