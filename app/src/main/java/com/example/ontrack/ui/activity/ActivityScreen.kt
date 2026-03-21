@@ -117,6 +117,7 @@ fun ActivityScreen(
                     systemGoal = uiState.systemGoal,
                     totalDaysCompleted = uiState.totalDaysCompleted,
                     currentStreak = uiState.currentStreak,
+                    lastStreakDateEpoch = uiState.lastStreakDateEpoch,
                     freezeCount = uiState.freezeCount,
                     isTodayComplete = uiState.isTodayComplete,
                     isVacationDay = uiState.isVacationDay
@@ -134,29 +135,6 @@ fun ActivityScreen(
                 )
                 Legend(modifier = Modifier.padding(top = 20.dp))
                 Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    text = "Time per habit",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                val habitsWithTrackTime = uiState.habits.filter { it.trackTimeEnabled }
-                if (habitsWithTrackTime.isNotEmpty()) {
-                    for (habit in habitsWithTrackTime) {
-                        HabitTimeRow(
-                            habitName = habit.title,
-                            totalMinutes = uiState.totalMinutesByHabitId[habit.id] ?: 0
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                    }
-                } else {
-                    Text(
-                        text = "No habits with timer. Enable track time on a habit to see time here.",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Color.Gray,
-                        modifier = Modifier.padding(vertical = 8.dp)
-                    )
-                }
             }
         }
     }
@@ -184,6 +162,7 @@ private fun HeaderRow(
     systemGoal: String,
     totalDaysCompleted: Int,
     currentStreak: Int,
+    lastStreakDateEpoch: Long,
     freezeCount: Int,
     isTodayComplete: Boolean,
     isVacationDay: Boolean = false,
@@ -214,6 +193,7 @@ private fun HeaderRow(
         StreakBadge(
             streak = currentStreak,
             isTodayComplete = isTodayComplete,
+            lastStreakDateEpoch = lastStreakDateEpoch,
             freezeCount = freezeCount,
             snowflakeTint = Color(0xFFB8E6F4),
             fireTint = Color(0xFFFF6B35),
@@ -506,7 +486,6 @@ private fun DayDetailSheet(
                 FrequencyType.WEEKLY -> (weekLogsByHabit[habit.id] ?: 0) >= 1
                 FrequencyType.SPECIFIC_DAYS -> (weekLogsByHabit[habit.id] ?: 0) >= habit.targetCount
             }
-            val minutes = log?.durationMinutes
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -524,43 +503,6 @@ private fun DayDetailSheet(
                     text = if (done) "Done" else "Not done yet",
                     style = MaterialTheme.typography.labelMedium,
                     color = if (done) GreenDone else BlueToday
-                )
-                if (minutes != null && minutes > 0) {
-                    Text(
-                        text = "%.1f h".format(minutes / 60.0),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = textSecondary,
-                        modifier = Modifier.padding(start = 8.dp)
-                    )
-                }
-            }
-        }
-        Text(
-            text = "Report – time per habit",
-            style = MaterialTheme.typography.titleMedium,
-            color = textPrimary,
-            modifier = Modifier.padding(top = 16.dp)
-        )
-        habits.forEach { habit ->
-            val log = logByHabit[habit.id]
-            val minutes = log?.durationMinutes ?: 0
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 2.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = habit.title,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = textPrimary,
-                    modifier = Modifier.weight(1f)
-                )
-                Text(
-                    text = if (minutes > 0) "%.1f h".format(minutes / 60.0) else "–",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = textSecondary
                 )
             }
         }

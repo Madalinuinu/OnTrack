@@ -31,7 +31,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.KeyboardArrowRight
-import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -61,11 +60,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.material.icons.filled.Check
 import com.example.ontrack.data.local.entity.FrequencyType
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import com.example.ontrack.ui.tracker.DurationPickerSheet
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -89,13 +88,6 @@ fun TodayPage(
     val todayTasksFiltered by viewModel.todayTasksFiltered.collectAsState(initial = emptyList())
     val filterGoalIds by viewModel.todayFilterGoalIds.collectAsState(initial = null)
     val todayActiveTimer by viewModel.todayActiveTimer.collectAsState(initial = null)
-    var taskForTimer by remember { mutableStateOf<TodayTaskItem?>(null) }
-    var selectedHours by remember { mutableIntStateOf(0) }
-    var selectedMinutes by remember { mutableIntStateOf(2) }
-    val sheetState = rememberModalBottomSheetState(
-        skipPartiallyExpanded = true,
-        confirmValueChange = { it != SheetValue.Hidden }
-    )
 
     Column(
         modifier = modifier
@@ -270,7 +262,6 @@ fun TodayPage(
                 ) { index, item ->
                     ReorderableItem(reorderableState, key = item.habit.id) { isDragging ->
                         val interactionSource = remember { MutableInteractionSource() }
-                        val timerForThis = todayActiveTimer?.takeIf { it.habitId == item.habit.id }
                         TodayTaskCard(
                             modifier = with(this) {
                                 Modifier
@@ -284,27 +275,17 @@ fun TodayPage(
                                     )
                             },
                             task = item,
-                            trackTimeEnabled = item.habit.trackTimeEnabled,
-                            activeTimer = timerForThis,
+                            trackTimeEnabled = false,
+                            activeTimer = null,
                             isInteractiveDay = isToday,
                             interactionSource = interactionSource,
                             isDragging = isDragging,
                             onCardClick = {
-                                if (!item.habit.trackTimeEnabled) onCompleteHabit(item.habit.systemId, item.habit.id)
+                                onCompleteHabit(item.habit.systemId, item.habit.id)
                             },
-                            onStartClick = {
-                                taskForTimer = item
-                                val last = item.habit.lastTimerDurationSeconds
-                                if (last != null && last >= 120) {
-                                    selectedHours = last / 3600
-                                    selectedMinutes = (last % 3600) / 60
-                                } else {
-                                    selectedHours = 0
-                                    selectedMinutes = 2
-                                }
-                            },
-                            onPauseClick = onPauseTimer,
-                            onResumeClick = onResumeTimer
+                            onStartClick = {},
+                            onPauseClick = {},
+                            onResumeClick = {}
                         )
                     }
                 }
@@ -314,34 +295,7 @@ fun TodayPage(
         }
     }
 
-    if (taskForTimer != null) {
-        ModalBottomSheet(
-            onDismissRequest = { taskForTimer = null },
-            sheetState = sheetState,
-            dragHandle = null
-        ) {
-            DurationPickerSheet(
-                habitTitle = taskForTimer!!.habit.title,
-                selectedHours = selectedHours,
-                selectedMinutes = selectedMinutes,
-                onHoursChange = { selectedHours = it },
-                onMinutesChange = { selectedMinutes = it },
-                onStart = {
-                    val totalSeconds = (selectedHours * 3600 + selectedMinutes * 60).coerceAtLeast(120)
-                    val habitId = taskForTimer!!.habit.id
-                    viewModel.saveLastTimerDuration(habitId, totalSeconds)
-                    onStartTimer(
-                        taskForTimer!!.habit.systemId,
-                        habitId,
-                        taskForTimer!!.habit.title,
-                        totalSeconds
-                    )
-                    taskForTimer = null
-                },
-                onCancel = { taskForTimer = null }
-            )
-        }
-    }
+    // Track time via timers is disabled; tasks complete directly on tap.
 }
 
 @Composable
@@ -517,9 +471,6 @@ private fun TodayTaskCard(
     onResumeClick: () -> Unit
 ) {
     val isCompleted = task.isCompletedToday
-    val isTimerRunning = activeTimer != null && !activeTimer.isPaused
-    val isTimerPaused = activeTimer != null && activeTimer.isPaused
-
     Card(
         modifier = modifier.then(
             if (isInteractiveDay && !trackTimeEnabled && interactionSource == null) Modifier.clickable(onClick = onCardClick)
@@ -583,84 +534,36 @@ private fun TodayTaskCard(
                     }
                 }
             }
-            when {
-                isCompleted -> {
-                    Column(horizontalAlignment = Alignment.End) {
+            if (isCompleted) {
+                Column(horizontalAlignment = Alignment.End) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
                         Text(
                             text = "Done",
-                            style = MaterialTheme.typography.labelLarge,
+                            style = MaterialTheme.typography.titleMedium.copy(
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Bold
+                            ),
                             color = MaterialTheme.colorScheme.primary
                         )
+                        Icon(
+                            imageVector = Icons.Filled.Check,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                    val minutes = task.durationMinutes
+                    if (minutes != null && minutes > 0) {
                         Text(
-                            text = task.durationMinutes?.let { "$it min" } ?: "—",
+                            text = "$minutes min",
                             style = MaterialTheme.typography.bodySmall,
                             color = Color.Gray
                         )
                     }
                 }
-                task.isWeeklyTargetReached() && !isCompleted -> {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        Column(horizontalAlignment = Alignment.End) {
-                            Text(
-                                text = "Done",
-                                style = MaterialTheme.typography.labelLarge,
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                            Text(
-                                text = "Tap to add more",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = Color.Gray
-                            )
-                        }
-                        if (isInteractiveDay && trackTimeEnabled) {
-                            Button(
-                                onClick = onStartClick,
-                                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
-                            ) {
-                                Text("Start")
-                            }
-                        }
-                    }
-                }
-                trackTimeEnabled && isInteractiveDay && (isTimerRunning || isTimerPaused) -> {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        Button(
-                            onClick = if (isTimerPaused) onResumeClick else onPauseClick,
-                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
-                        ) {
-                            Text(if (isTimerPaused) "Resume" else "Pause")
-                        }
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                Icons.Outlined.Timer,
-                                contentDescription = null,
-                                modifier = Modifier.size(20.dp),
-                                tint = Color.Gray
-                            )
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text(
-                                text = activeTimer.formattedTime(),
-                                style = MaterialTheme.typography.titleSmall,
-                                color = Color.Black
-                            )
-                        }
-                    }
-                }
-                trackTimeEnabled && isInteractiveDay -> {
-                    Button(
-                        onClick = onStartClick,
-                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
-                    ) {
-                        Text("Start")
-                    }
-                }
-                else -> { }
             }
         }
     }

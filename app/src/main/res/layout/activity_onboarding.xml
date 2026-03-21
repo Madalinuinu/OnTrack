@@ -24,13 +24,13 @@
             android:orientation="horizontal"
             app:layout_constraintGuide_percent="0.18" />
 
-        <!-- Guideline pentru buton (78% de la top) -->
+        <!-- Guideline pentru câmp nume + buton: între 78% (inițial) și 70% (mai sus) → ~74% -->
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            app:layout_constraintGuide_percent="0.78" />
+            app:layout_constraintGuide_percent="0.74" />
 
         <!-- H1: Hi, Welcome (numele se actualizează din cod când utilizatorul scrie) -->
         <TextView
@@ -82,7 +82,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
-        <!-- Câmp "Enter your name" în aceeași poziție ca GET STARTED (guideline 82%), vizibil după primul tap -->
+        <!-- Câmp "Enter your name" ancorat de guideline_button; vizibil după primul tap -->
         <EditText
             android:id="@+id/name_input"
             android:layout_width="0dp"
@@ -101,7 +101,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintWidth_percent="0.82" />
 
-        <!-- GET STARTED la 82%; după tap devine CONTINUE și se mută sub "Enter your name" -->
+        <!-- GET STARTED (când input e gone, sub guideline); după tap devine CONTINUE sub "Enter your name" -->
         <Button
             android:id="@+id/get_started_button"
             android:layout_width="0dp"

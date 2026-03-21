@@ -107,6 +107,7 @@ fun TrackerScreen(
                         StreakBadge(
                             streak = currentStreak,
                             isTodayComplete = isTodayComplete,
+                            lastStreakDateEpoch = system?.lastStreakDate ?: -1L,
                             freezeCount = freezeCount,
                             isVacation = isVacationDay
                         )

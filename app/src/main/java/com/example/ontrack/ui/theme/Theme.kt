@@ -25,7 +25,10 @@ private val AppColorScheme = lightColorScheme(
     onSurface = Color.White,
     surfaceVariant = BackgroundColor.copy(alpha = 0.9f),
     onSurfaceVariant = Color.White,
-    outline = Color(0xFFCBD5FF)
+    outline = Color(0xFFCBD5FF),
+    // Acțiuni distructive (ștergeri) — aliniat la accentele folosite în UI
+    error = Color(0xFFFF6B6B),
+    onError = Color.White
 )
 
 @Composable

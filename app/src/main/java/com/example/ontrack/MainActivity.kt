@@ -151,7 +151,9 @@ class MainActivity : ComponentActivity() {
                                     factory = EditSystemViewModelFactory(
                                         systemId = editSystemId,
                                         systemDao = application.database.systemDao(),
-                                        habitDao = application.database.habitDao()
+                                        habitDao = application.database.habitDao(),
+                                        userPreferences = application.userPreferences,
+                                        streakManager = application.streakManager
                                     )
                                 )
                                 EditSystemScreen(

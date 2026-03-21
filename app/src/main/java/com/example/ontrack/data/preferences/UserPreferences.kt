@@ -46,6 +46,18 @@ private object Keys {
     val SLEEP_BEDTIME_MINUTES = intPreferencesKey("sleep_bedtime_minutes")
     /** Sleep reminder: wake time in minutes since midnight (0..1439). -1 = not set. */
     val SLEEP_WAKE_MINUTES = intPreferencesKey("sleep_wake_minutes")
+
+    /**
+     * When editing a goal, we suppress streak recalculation for the current day.
+     * Value is an epochDay; when it equals today's epochDay, StreakManager won't update streak counters.
+     */
+    val STREAK_SUPPRESS_EPOCH_DAY = longPreferencesKey("streak_suppress_epoch_day")
+
+    /** System ID whose day-complete result we cache while editing. */
+    val STREAK_SUPPRESS_SYSTEM_ID = longPreferencesKey("streak_suppress_system_id")
+
+    /** Cached isDayComplete(systemId, todayEpoch) value used while editing. */
+    val STREAK_SUPPRESS_SYSTEM_TODAY_COMPLETE = booleanPreferencesKey("streak_suppress_system_today_complete")
 }
 
 class UserPreferences(context: Context) {
@@ -119,10 +131,47 @@ class UserPreferences(context: Context) {
         prefs[Keys.SLEEP_WAKE_MINUTES] ?: -1
     }
 
+    val streakSuppressEpochDay: Flow<Long> = dataStore.data.map { prefs ->
+        prefs[Keys.STREAK_SUPPRESS_EPOCH_DAY] ?: -1L
+    }
+
+    val streakSuppressSystemId: Flow<Long> = dataStore.data.map { prefs ->
+        prefs[Keys.STREAK_SUPPRESS_SYSTEM_ID] ?: -1L
+    }
+
+    val streakSuppressSystemTodayComplete: Flow<Boolean> = dataStore.data.map { prefs ->
+        prefs[Keys.STREAK_SUPPRESS_SYSTEM_TODAY_COMPLETE] ?: false
+    }
+
     suspend fun setSleepTimes(bedtimeMinutes: Int, wakeMinutes: Int) {
         dataStore.edit { prefs ->
             prefs[Keys.SLEEP_BEDTIME_MINUTES] = bedtimeMinutes.coerceIn(0, 1439)
             prefs[Keys.SLEEP_WAKE_MINUTES] = wakeMinutes.coerceIn(0, 1439)
+        }
+    }
+
+    /** Suppress streak updates while editing (only for the given epochDay). */
+    suspend fun setStreakSuppressEpochDay(epochDay: Long) {
+        dataStore.edit { prefs ->
+            prefs[Keys.STREAK_SUPPRESS_EPOCH_DAY] = epochDay
+        }
+    }
+
+    /** Cache day-complete result while editing a system for a specific epoch day. */
+    suspend fun setStreakSuppressForSystem(systemId: Long, epochDay: Long, dayComplete: Boolean) {
+        dataStore.edit { prefs ->
+            prefs[Keys.STREAK_SUPPRESS_EPOCH_DAY] = epochDay
+            prefs[Keys.STREAK_SUPPRESS_SYSTEM_ID] = systemId
+            prefs[Keys.STREAK_SUPPRESS_SYSTEM_TODAY_COMPLETE] = dayComplete
+        }
+    }
+
+    /** Clear streak suppression (used when user completes tasks after editing). */
+    suspend fun clearStreakSuppress() {
+        dataStore.edit { prefs ->
+            prefs[Keys.STREAK_SUPPRESS_EPOCH_DAY] = -1L
+            prefs[Keys.STREAK_SUPPRESS_SYSTEM_ID] = -1L
+            prefs[Keys.STREAK_SUPPRESS_SYSTEM_TODAY_COMPLETE] = false
         }
     }
 

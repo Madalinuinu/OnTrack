@@ -5,8 +5,10 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.ontrack.data.local.dao.HabitDao
 import com.example.ontrack.data.local.dao.SystemDao
+import com.example.ontrack.data.streak.StreakManager
 import com.example.ontrack.data.local.entity.HabitEntity
 import com.example.ontrack.data.local.entity.SystemEntity
+import com.example.ontrack.data.preferences.UserPreferences
 import com.example.ontrack.ui.createsystem.HabitItem
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,6 +17,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import com.example.ontrack.util.EffectiveDate
 import java.time.LocalDate
 
 data class EditSystemUiState(
@@ -30,7 +33,9 @@ data class EditSystemUiState(
 class EditSystemViewModel(
     private val systemId: Long,
     private val systemDao: SystemDao,
-    private val habitDao: HabitDao
+    private val habitDao: HabitDao,
+    private val userPreferences: UserPreferences,
+    private val streakManager: StreakManager
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(EditSystemUiState(systemId = systemId))
@@ -39,8 +44,18 @@ class EditSystemViewModel(
     /** Stable negative ids for newly added habits in edit so reorderable list keys don't conflict. */
     private var nextTempId = -1L
 
+    private var cachedEditTodayEpochDay: Long = -1L
+    private var cachedEditTodayComplete: Boolean = false
+
     init {
-        viewModelScope.launch { load() }
+        viewModelScope.launch {
+            val today = EffectiveDate.todayEpoch()
+            cachedEditTodayEpochDay = today
+            cachedEditTodayComplete = streakManager.isDayComplete(systemId, today)
+            // Prevent streak/calandar day status from changing due to habit edits.
+            userPreferences.setStreakSuppressForSystem(systemId, today, cachedEditTodayComplete)
+            load()
+        }
     }
 
     private suspend fun load() {
@@ -54,7 +69,7 @@ class EditSystemViewModel(
                 title = h.title,
                 frequencyType = h.frequencyType,
                 targetCount = h.targetCount,
-                trackTimeEnabled = h.trackTimeEnabled
+                trackTimeEnabled = false
             )
         }
         _uiState.value = EditSystemUiState(
@@ -126,6 +141,16 @@ class EditSystemViewModel(
         viewModelScope.launch {
             _uiState.value = state.copy(isSaving = true)
             withContext(Dispatchers.IO) {
+                // Re-assert suppression during save so any quick transitions don't cause streak flips.
+                val today = cachedEditTodayEpochDay.takeIf { it >= 0 } ?: EffectiveDate.todayEpoch()
+                val dayCompleteForSuppression = if (cachedEditTodayEpochDay == today) {
+                    cachedEditTodayComplete
+                } else {
+                    // init() might not have run / finished yet; compute right now while habits are still unchanged.
+                    streakManager.isDayComplete(systemId, today)
+                }
+                userPreferences.setStreakSuppressForSystem(systemId, today, dayCompleteForSuppression)
+
                 val system = systemDao.getSystemById(systemId) ?: return@withContext
                 val updated = system.copy(
                     name = goal,
@@ -142,7 +167,7 @@ class EditSystemViewModel(
                         title = item.title.trim(),
                         frequencyType = item.frequencyType,
                         targetCount = item.targetCount.coerceIn(1, 7),
-                        trackTimeEnabled = item.trackTimeEnabled
+                        trackTimeEnabled = false
                     )
                 }
                 habitDao.insertHabits(habits)
@@ -155,11 +180,13 @@ class EditSystemViewModel(
 class EditSystemViewModelFactory(
     private val systemId: Long,
     private val systemDao: SystemDao,
-    private val habitDao: HabitDao
+    private val habitDao: HabitDao,
+    private val userPreferences: UserPreferences,
+    private val streakManager: StreakManager
 ) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass != EditSystemViewModel::class.java) throw IllegalArgumentException("Unknown ViewModel")
-        return EditSystemViewModel(systemId, systemDao, habitDao) as T
+        return EditSystemViewModel(systemId, systemDao, habitDao, userPreferences, streakManager) as T
     }
 }

@@ -4,6 +4,7 @@ import android.app.TimePickerDialog
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.widthIn
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -30,6 +32,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.outlined.FolderOpen
 import androidx.compose.material.icons.outlined.KeyboardArrowDown
 import androidx.compose.material.icons.outlined.KeyboardArrowUp
@@ -41,7 +44,6 @@ import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material.icons.outlined.Bedtime
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.ShowChart
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.ui.window.Dialog
 import androidx.compose.material3.ButtonDefaults
@@ -51,6 +53,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -81,6 +84,7 @@ import com.example.ontrack.data.local.entity.SystemEntity
 import com.example.ontrack.util.playTimerFinishedSound
 import com.example.ontrack.util.showTimerFinishedNotification
 import com.example.ontrack.ui.components.StreakBadge
+import com.example.ontrack.ui.components.streakBadgeDisplayNumber
 import com.example.ontrack.ui.home.daysLeft
 import com.example.ontrack.util.SleepReminderScheduler
 import sh.calvin.reorderable.ReorderableItem
@@ -117,13 +121,12 @@ fun HomeScreen(
     modifier: Modifier = Modifier
 ) {
     val systems by viewModel.systems.collectAsState(initial = emptyList())
-    val selectedSystemId by viewModel.selectedSystemId.collectAsState(initial = null)
     val expiredDialogSystemId by viewModel.expiredDialogSystemId.collectAsState(initial = null)
     val todayCompleteMap by viewModel.todayCompleteMap.collectAsState(initial = emptyMap())
     val freezeCountMap by viewModel.freezeCountMap.collectAsState(initial = emptyMap())
     val globalStreakDays by viewModel.globalStreakDays.collectAsState(initial = 0)
+    val globalLastStreakDateEpoch by viewModel.globalLastStreakDateEpoch.collectAsState(initial = -1L)
     val allGoalsCompleteToday by viewModel.allGoalsCompleteToday.collectAsState(initial = false)
-    var showDeleteConfirm by remember { mutableStateOf(false) }
     val pagerState = rememberPagerState(initialPage = initialPage, pageCount = { 2 })
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     var drawerScreen by remember { mutableStateOf("menu") }
@@ -145,9 +148,6 @@ fun HomeScreen(
         viewModel.refreshTodayComplete()
     }
 
-    val selectedSystem = remember(selectedSystemId, systems) {
-        selectedSystemId?.let { id -> systems.find { it.id == id } }
-    }
     val expiredSystem = expiredDialogSystemId?.let { id -> systems.find { it.id == id } }
     if (expiredSystem != null) {
         Dialog(onDismissRequest = { }) {
@@ -198,34 +198,6 @@ fun HomeScreen(
             }
         }
     }
-    if (showDeleteConfirm && selectedSystem != null) {
-        AlertDialog(
-            onDismissRequest = { showDeleteConfirm = false },
-            title = { Text("Delete goal?") },
-            text = {
-                Text(
-                    "Are you sure you want to delete this goal? Your streak is ${selectedSystem.currentStreak} days."
-                )
-            },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        viewModel.deleteSystem(selectedSystem.id)
-                        showDeleteConfirm = false
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
-                ) {
-                    Text("Delete")
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showDeleteConfirm = false }) {
-                    Text("Cancel")
-                }
-            }
-        )
-    }
-
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
@@ -238,6 +210,8 @@ fun HomeScreen(
                     DrawerHeader(
                         globalStreakDays = globalStreakDays,
                         allGoalsCompleteToday = allGoalsCompleteToday,
+                        globalLastStreakDateEpoch = globalLastStreakDateEpoch,
+                        todayEpoch = todayEpoch,
                         isVacationDay = isVacationDay
                     )
                     Spacer(modifier = Modifier.height(20.dp))
@@ -456,12 +430,6 @@ Text(
                             onCheckedChange = onVacationModeEnabledChange
                         )
                     }
-                    Text(
-                        text = "Starts next day: no tasks on Today (\"Enjoy your vacation!\"), streak frozen (orange). When off, resume next day; past vacation days stay orange.",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = Color.Gray,
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 0.dp)
-                    )
                     HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
                     Row(
                         modifier = Modifier
@@ -543,14 +511,16 @@ Text(
                 when (page) {
                     0 -> GoalsPage(
                         systems = systems,
-                        selectedSystemId = selectedSystemId,
                         todayCompleteMap = todayCompleteMap,
                         freezeCountMap = freezeCountMap,
                         viewModel = viewModel,
-                        showDeleteConfirm = { showDeleteConfirm = true },
+                        isGoalsTabVisible = pagerState.currentPage == 0,
                         onCreateSystemClick = onCreateSystemClick,
-                        onOpenSystemClick = onOpenSystemClick,
-                        onActivityClick = onActivityClick,
+                        onOpenGoalInToday = { systemId ->
+                            viewModel.setTodayFilter(setOf(systemId))
+                            viewModel.setSelectedDate(com.example.ontrack.util.EffectiveDate.today())
+                            scope.launch { pagerState.animateScrollToPage(1) }
+                        },
                         onEditSystemClick = onEditSystemClick
                     )
                     1 -> TodayPage(
@@ -569,29 +539,35 @@ Text(
     }
 }
 
-private val DrawerHeaderPurple = Color(0xFF6C5CE7)
-
 private val VacationOrange = Color(0xFFFF9500)
 
 @Composable
 private fun DrawerHeader(
     globalStreakDays: Int,
     allGoalsCompleteToday: Boolean,
+    globalLastStreakDateEpoch: Long,
+    todayEpoch: Long,
     isVacationDay: Boolean = false,
     modifier: Modifier = Modifier
 ) {
-    val displayCount = if (allGoalsCompleteToday) maxOf(1, globalStreakDays) else maxOf(1, globalStreakDays + 1)
+    val displayCount = streakBadgeDisplayNumber(
+        streak = globalStreakDays,
+        isTodayComplete = allGoalsCompleteToday,
+        lastStreakDateEpoch = globalLastStreakDateEpoch,
+        todayEpoch = todayEpoch
+    )
     val dayLabel = if (displayCount == 1) "Day" else "Days"
     val iconTint = when {
         isVacationDay -> VacationOrange
         allGoalsCompleteToday -> Color(0xFFFF6B35)
         else -> Color(0xFF58CCE8)
     }
+    val scheme = MaterialTheme.colorScheme
     Box(
         modifier = modifier
             .fillMaxWidth()
             .background(
-                color = DrawerHeaderPurple,
+                color = scheme.primary,
                 shape = RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp)
             )
     ) {
@@ -609,7 +585,7 @@ private fun DrawerHeader(
                     style = MaterialTheme.typography.headlineSmall.copy(
                         fontWeight = FontWeight.Bold
                     ),
-                    color = Color.White
+                    color = scheme.onPrimary
                 )
                 Icon(
                     imageVector = if (allGoalsCompleteToday) Icons.Filled.LocalFireDepartment else Icons.Filled.AcUnit,
@@ -622,7 +598,7 @@ private fun DrawerHeader(
             Text(
                 text = "Your current streak",
                 style = MaterialTheme.typography.bodyMedium,
-                color = Color.White.copy(alpha = 0.9f)
+                color = scheme.onPrimary.copy(alpha = 0.9f)
             )
         }
     }
@@ -631,17 +607,118 @@ private fun DrawerHeader(
 @Composable
 private fun GoalsPage(
     systems: List<SystemEntity>,
-    selectedSystemId: Long?,
     todayCompleteMap: Map<Long, Boolean>,
     freezeCountMap: Map<Long, Int>,
     viewModel: HomeViewModel,
-    showDeleteConfirm: () -> Unit,
+    isGoalsTabVisible: Boolean,
     onCreateSystemClick: () -> Unit,
-    onOpenSystemClick: (Long) -> Unit,
-    onActivityClick: (Long) -> Unit,
+    onOpenGoalInToday: (Long) -> Unit,
     onEditSystemClick: (Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    var goalSelectionMode by remember { mutableStateOf(false) }
+    var selectedGoalIds by remember { mutableStateOf(setOf<Long>()) }
+    var showBulkDeleteConfirm by remember { mutableStateOf(false) }
+
+    fun clearGoalSelection() {
+        goalSelectionMode = false
+        selectedGoalIds = emptySet()
+    }
+
+    LaunchedEffect(isGoalsTabVisible) {
+        if (!isGoalsTabVisible) clearGoalSelection()
+    }
+
+    LaunchedEffect(systems) {
+        selectedGoalIds = selectedGoalIds.filter { id -> systems.any { it.id == id } }.toSet()
+        if (selectedGoalIds.isEmpty()) goalSelectionMode = false
+    }
+
+    if (showBulkDeleteConfirm) {
+        val deleteCount = selectedGoalIds.size
+        val scheme = MaterialTheme.colorScheme
+        Dialog(onDismissRequest = { showBulkDeleteConfirm = false }) {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .widthIn(max = 320.dp),
+                shape = RoundedCornerShape(24.dp),
+                colors = CardDefaults.cardColors(containerColor = scheme.surface),
+                elevation = CardDefaults.cardElevation(defaultElevation = 10.dp)
+            ) {
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(
+                                color = scheme.primary,
+                                shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
+                            )
+                            .padding(horizontal = 22.dp, vertical = 18.dp)
+                    ) {
+                        Text(
+                            text = if (deleteCount == 1) "Delete goal?" else "Delete goals?",
+                            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                            color = scheme.onPrimary
+                        )
+                    }
+                    Column(
+                        modifier = Modifier.padding(horizontal = 22.dp, vertical = 20.dp)
+                    ) {
+                        Text(
+                            text = if (deleteCount == 1) {
+                                "Are you sure you want to delete this goal? This cannot be undone."
+                            } else {
+                                "Are you sure you want to delete $deleteCount goals? This cannot be undone."
+                            },
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = scheme.onSurface
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "Streak and task history for these goals will be removed.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = scheme.outline
+                        )
+                        Spacer(modifier = Modifier.height(22.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            OutlinedButton(
+                                onClick = { showBulkDeleteConfirm = false },
+                                modifier = Modifier.weight(1f),
+                                shape = RoundedCornerShape(14.dp),
+                                border = BorderStroke(2.dp, scheme.outline),
+                                colors = ButtonDefaults.outlinedButtonColors(
+                                    contentColor = scheme.onSurface
+                                )
+                            ) {
+                                Text("No", fontWeight = FontWeight.SemiBold)
+                            }
+                            Button(
+                                onClick = {
+                                    viewModel.deleteSystems(selectedGoalIds)
+                                    showBulkDeleteConfirm = false
+                                    clearGoalSelection()
+                                },
+                                modifier = Modifier.weight(1f),
+                                shape = RoundedCornerShape(14.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = scheme.error,
+                                    contentColor = scheme.onError
+                                )
+                            ) {
+                                Text("Yes", fontWeight = FontWeight.SemiBold)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -662,21 +739,75 @@ private fun GoalsPage(
                 ),
                 border = BorderStroke(2.dp, Color.White.copy(alpha = 0.3f))
             ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 16.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "GOALS",
-                        style = MaterialTheme.typography.headlineMedium.copy(
-                            fontSize = 28.sp,
-                            fontWeight = FontWeight.Bold,
-                            letterSpacing = 0.05.sp
-                        ),
-                        color = Color.White
-                    )
+                if (goalSelectionMode) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 8.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Start
+                        ) {
+                            IconButton(onClick = { clearGoalSelection() }) {
+                                Icon(
+                                    imageVector = Icons.Filled.Close,
+                                    contentDescription = "Cancel selection",
+                                    tint = Color.White
+                                )
+                            }
+                            val n = selectedGoalIds.size
+                            Text(
+                                text = if (n == 1) "1 selected" else "$n selected",
+                                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                                color = Color.White
+                            )
+                        }
+                        Button(
+                            onClick = {
+                                if (selectedGoalIds.isNotEmpty()) showBulkDeleteConfirm = true
+                            },
+                            enabled = selectedGoalIds.isNotEmpty(),
+                            shape = RoundedCornerShape(12.dp),
+                            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.error,
+                                contentColor = MaterialTheme.colorScheme.onError,
+                                disabledContainerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.18f),
+                                disabledContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.45f)
+                            ),
+                            elevation = ButtonDefaults.buttonElevation(
+                                defaultElevation = 2.dp,
+                                pressedElevation = 4.dp,
+                                disabledElevation = 0.dp
+                            )
+                        ) {
+                            Text(
+                                text = "Delete",
+                                style = MaterialTheme.typography.labelLarge,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        }
+                    }
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 16.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "GOALS",
+                            style = MaterialTheme.typography.headlineMedium.copy(
+                                fontSize = 28.sp,
+                                fontWeight = FontWeight.Bold,
+                                letterSpacing = 0.05.sp
+                            ),
+                            color = Color.White
+                        )
+                    }
                 }
             }
         }
@@ -686,6 +817,16 @@ private fun GoalsPage(
                 .fillMaxWidth()
                 .height(1.dp)
                 .background(Color.White.copy(alpha = 0.3f))
+                .then(
+                    if (goalSelectionMode) {
+                        Modifier.clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null
+                        ) { clearGoalSelection() }
+                    } else {
+                        Modifier
+                    }
+                )
         )
         Spacer(modifier = Modifier.height(24.dp))
 
@@ -723,28 +864,64 @@ private fun GoalsPage(
                     itemsIndexed(
                         displaySystems,
                         key = { _, system -> system.id }
-                    ) { index, system ->
+                    ) { _, system ->
                         ReorderableItem(reorderableState, key = system.id) { isDragging ->
-                            val interactionSource = remember { MutableInteractionSource() }
+                            val handleInteractionSource = remember { MutableInteractionSource() }
+                            val dragModifier = with(this) {
+                                Modifier.longPressDraggableHandle(
+                                    onDragStarted = {
+                                        goalSelectionMode = true
+                                        if (system.id !in selectedGoalIds) {
+                                            selectedGoalIds = selectedGoalIds + system.id
+                                        }
+                                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                    },
+                                    interactionSource = handleInteractionSource
+                                )
+                            }
                             SystemCard(
-                                modifier = with(this) {
-                                    Modifier
-                                        .fillMaxWidth()
-                                        .animateItem()
-                                        .longPressDraggableHandle(
-                                            onDragStarted = {
-                                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                            },
-                                            interactionSource = interactionSource
-                                        )
-                                },
+                                modifier = Modifier.fillMaxWidth(),
+                                reorderableDragModifier = dragModifier,
                                 system = system,
                                 isTodayComplete = todayCompleteMap[system.id] ?: false,
                                 freezeCount = freezeCountMap[system.id] ?: 0,
-                                onOpenClick = { viewModel.selectSystem(null); onEditSystemClick(system.id) },
-                                onActivityClick = { viewModel.selectSystem(null); onActivityClick(system.id) },
-                                onDeleteClick = showDeleteConfirm,
-                                interactionSource = interactionSource,
+                                isSelected = system.id in selectedGoalIds,
+                                selectionMode = goalSelectionMode,
+                                onOpenClick = {
+                                    if (goalSelectionMode) {
+                                        clearGoalSelection()
+                                    }
+                                    viewModel.selectSystem(null)
+                                    onOpenGoalInToday(system.id)
+                                },
+                                onEditClick = {
+                                    if (goalSelectionMode) {
+                                        clearGoalSelection()
+                                    }
+                                    viewModel.selectSystem(null)
+                                    onEditSystemClick(system.id)
+                                },
+                                onCardClick = {
+                                    if (goalSelectionMode) {
+                                        selectedGoalIds =
+                                            if (system.id in selectedGoalIds) {
+                                                selectedGoalIds - system.id
+                                            } else {
+                                                selectedGoalIds + system.id
+                                            }
+                                        if (selectedGoalIds.isEmpty()) goalSelectionMode = false
+                                    }
+                                },
+                                onCardLongClick = {
+                                    goalSelectionMode = true
+                                    selectedGoalIds =
+                                        if (system.id in selectedGoalIds) {
+                                            selectedGoalIds
+                                        } else {
+                                            selectedGoalIds + system.id
+                                        }
+                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                },
                                 isDragging = isDragging
                             )
                         }
@@ -754,9 +931,26 @@ private fun GoalsPage(
                     }
                     item {
                         AddGoalCard(
-                            onClick = onCreateSystemClick,
+                            onClick = {
+                                if (goalSelectionMode) clearGoalSelection()
+                                onCreateSystemClick()
+                            },
                             modifier = Modifier.fillMaxWidth()
                         )
+                    }
+                    if (goalSelectionMode) {
+                        item(key = "selection_dismiss_area") {
+                            val dismissInteraction = remember { MutableInteractionSource() }
+                            Spacer(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(320.dp)
+                                    .clickable(
+                                        interactionSource = dismissInteraction,
+                                        indication = null
+                                    ) { clearGoalSelection() }
+                            )
+                        }
                     }
                     item {
                         Spacer(modifier = Modifier.height(24.dp))
@@ -856,21 +1050,38 @@ private fun SystemCard(
     system: SystemEntity,
     isTodayComplete: Boolean,
     freezeCount: Int = 0,
+    isSelected: Boolean = false,
+    selectionMode: Boolean = false,
     onOpenClick: () -> Unit,
-    onActivityClick: () -> Unit,
-    onDeleteClick: () -> Unit,
-    interactionSource: MutableInteractionSource,
+    onEditClick: () -> Unit,
+    onCardClick: () -> Unit,
+    onCardLongClick: () -> Unit,
     isDragging: Boolean,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    /** Full-card long-press drag for reorder (works in normal and selection mode). */
+    reorderableDragModifier: Modifier = Modifier
 ) {
     val daysLeft = system.daysLeft()
+    val cardInteractionSource = remember { MutableInteractionSource() }
     Card(
-        modifier = modifier.height(108.dp),
-        onClick = { },
-        interactionSource = interactionSource,
+        modifier = modifier
+            .height(108.dp)
+            .combinedClickable(
+                interactionSource = cardInteractionSource,
+                indication = null,
+                onClick = onCardClick,
+                onLongClickLabel = "Select goal",
+                onLongClick = onCardLongClick
+            )
+            .then(reorderableDragModifier),
         shape = RoundedCornerShape(24.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(defaultElevation = if (isDragging) 12.dp else 6.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = if (isDragging) 12.dp else 6.dp),
+        border = if (isSelected) {
+            BorderStroke(3.dp, Color(0xFF6C5CE7))
+        } else {
+            null
+        }
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
             Column(
@@ -894,32 +1105,27 @@ private fun SystemCard(
                         color = Color.Black,
                         modifier = Modifier.weight(1f)
                     )
-                    Box(
-                        modifier = Modifier.clickable(
-                            interactionSource = remember { MutableInteractionSource() },
-                            indication = null,
-                            onClick = onActivityClick
-                        )
-                    ) {
-                        StreakBadge(
-                            streak = system.currentStreak,
-                            isTodayComplete = isTodayComplete,
-                            freezeCount = freezeCount
-                        )
-                    }
+                    StreakBadge(
+                        streak = system.currentStreak,
+                        isTodayComplete = isTodayComplete,
+                        lastStreakDateEpoch = system.lastStreakDate,
+                        freezeCount = freezeCount
+                    )
                 }
                 Spacer(modifier = Modifier.height(12.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Start,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Button(onClick = onActivityClick) {
-                        Text("Activity")
-                    }
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Button(onClick = onOpenClick) {
-                        Text("Edit")
+                if (!selectionMode) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Start,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Button(onClick = onOpenClick) {
+                            Text("Open")
+                        }
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Button(onClick = onEditClick) {
+                            Text("Edit")
+                        }
                     }
                 }
             }

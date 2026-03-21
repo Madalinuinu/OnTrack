@@ -29,6 +29,8 @@ data class ActivityUiState(
     val pausedEpochDays: Set<Long> = emptySet(),
     val totalDaysCompleted: Int = 0,
     val currentStreak: Int = 0,
+    /** Matches Room `lastStreakDate` for correct ice number when user toggles off today's completions. */
+    val lastStreakDateEpoch: Long = -1L,
     val freezeCount: Int = 0,
     val isTodayComplete: Boolean = false,
     /** True when vacation mode is on and today is in vacation range; streak shows orange (frozen). */
@@ -117,6 +119,7 @@ class ActivityViewModel(
                 pausedEpochDays = pausedEpochDays,
                 totalDaysCompleted = 0,
                 currentStreak = system.currentStreak,
+                lastStreakDateEpoch = system.lastStreakDate,
                 freezeCount = streakManager.getFreezeCount(systemId),
                 isTodayComplete = false,
                 isVacationDay = isVacationDay,
@@ -144,6 +147,7 @@ class ActivityViewModel(
             pausedEpochDays = pausedEpochDays,
             totalDaysCompleted = completedEpochDays.size,
             currentStreak = system.currentStreak,
+            lastStreakDateEpoch = system.lastStreakDate,
             freezeCount = freezeCount,
             isTodayComplete = isTodayComplete,
             isVacationDay = isVacationDay,

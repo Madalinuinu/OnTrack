@@ -21,6 +21,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.first
 import com.example.ontrack.service.TimerStateHolder
 import com.example.ontrack.util.EffectiveDate
 import java.time.DayOfWeek
@@ -189,6 +190,11 @@ class TrackerViewModel(
 
     fun toggleHabit(habitId: Long) {
         viewModelScope.launch {
+            val today = todayEpochDay
+            // If user completes tasks after editing a goal, un-suppress streak recalculation.
+            if (userPreferences.streakSuppressEpochDay.first() == today) {
+                userPreferences.clearStreakSuppress()
+            }
             habitLogDao.toggleHabitCompletion(habitId, todayEpochDay)
             streakManager.refreshStreak(systemId)
             _isTodayComplete.value = streakManager.isDayComplete(systemId, todayEpochDay)

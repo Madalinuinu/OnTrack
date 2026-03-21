@@ -63,6 +63,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.ontrack.ui.components.streakBadgeDisplayNumber
 import com.example.ontrack.util.EffectiveDate
 import java.time.LocalDate
 import java.time.YearMonth
@@ -126,6 +127,8 @@ fun YourStatsScreen(
                 HeaderRow(
                     globalStreakDays = uiState.globalStreakDays,
                     allGoalsCompleteToday = uiState.allGoalsCompleteToday,
+                    globalLastStreakDateEpoch = uiState.globalLastStreakDateEpoch,
+                    todayEpoch = uiState.todayEpoch,
                     isVacationDay = uiState.isVacationDay
                 )
                 CalendarSwipeArea(
@@ -133,34 +136,12 @@ fun YourStatsScreen(
                     onPrevMonth = { selectedMonth = selectedMonth.minusMonths(1) },
                     onNextMonth = { selectedMonth = selectedMonth.plusMonths(1) },
                     todayEpoch = uiState.todayEpoch,
-                    firstCompletedEpoch = uiState.firstCompletedEpoch,
+                    firstUsageEpoch = uiState.firstUsageEpoch,
                     completedEpochDays = uiState.completedEpochDays,
                     pausedEpochDays = uiState.pausedEpochDays,
                     onDayClick = { selectedDayEpoch = it }
                 )
                 StatsLegend(modifier = Modifier.padding(top = 20.dp))
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    text = "Time per goal",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                for (item in uiState.goalTimeItems) {
-                    GoalTimeRow(
-                        goalName = item.system.goal,
-                        totalMinutes = item.totalMinutes
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                }
-                if (uiState.goalTimeItems.isEmpty()) {
-                    Text(
-                        text = "No tracked time yet. Complete habits with timer to see time here.",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Color.Gray,
-                        modifier = Modifier.padding(vertical = 8.dp)
-                    )
-                }
             }
         }
     }
@@ -276,10 +257,17 @@ private val VacationOrange = Color(0xFFFF9500)
 private fun HeaderRow(
     globalStreakDays: Int,
     allGoalsCompleteToday: Boolean,
+    globalLastStreakDateEpoch: Long,
+    todayEpoch: Long,
     isVacationDay: Boolean = false,
     modifier: Modifier = Modifier
 ) {
-    val displayCount = if (allGoalsCompleteToday) maxOf(1, globalStreakDays) else maxOf(1, globalStreakDays + 1)
+    val displayCount = streakBadgeDisplayNumber(
+        streak = globalStreakDays,
+        isTodayComplete = allGoalsCompleteToday,
+        lastStreakDateEpoch = globalLastStreakDateEpoch,
+        todayEpoch = todayEpoch
+    )
     val dayLabel = if (displayCount == 1) "Day" else "Days"
     val iconTint = when {
         isVacationDay -> VacationOrange
@@ -331,7 +319,7 @@ private fun CalendarSwipeArea(
     onPrevMonth: () -> Unit,
     onNextMonth: () -> Unit,
     todayEpoch: Long,
-    firstCompletedEpoch: Long?,
+    firstUsageEpoch: Long?,
     completedEpochDays: Set<Long>,
     pausedEpochDays: Set<Long>,
     onDayClick: (Long) -> Unit,
@@ -367,11 +355,13 @@ private fun CalendarSwipeArea(
         MonthCalendarGrid(
             selectedMonth = selectedMonth,
             todayEpoch = todayEpoch,
-            firstCompletedEpoch = firstCompletedEpoch,
+            firstUsageEpoch = firstUsageEpoch,
             completedEpochDays = completedEpochDays,
             pausedEpochDays = pausedEpochDays,
             onDayClick = onDayClick,
-            modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 8.dp)
         )
     }
 }
@@ -427,7 +417,7 @@ private fun WeekDayHeaders(modifier: Modifier = Modifier) {
 private fun MonthCalendarGrid(
     selectedMonth: YearMonth,
     todayEpoch: Long,
-    firstCompletedEpoch: Long?,
+    firstUsageEpoch: Long?,
     completedEpochDays: Set<Long>,
     pausedEpochDays: Set<Long>,
     onDayClick: (Long) -> Unit,
@@ -454,17 +444,17 @@ private fun MonthCalendarGrid(
                     val isUpcoming = validDay && epochDay > todayEpoch
                     val isCompleted = validDay && epochDay in completedEpochDays
                     val isPaused = validDay && epochDay in pausedEpochDays
-                    val isBeforeFirstGreen = validDay && (
-                        (firstCompletedEpoch == null && epochDay < todayEpoch) ||
-                        (firstCompletedEpoch != null && epochDay < firstCompletedEpoch)
-                    )
+                    // No goals → firstUsageEpoch is null: whole calendar stays neutral (gray), not blue "skipped".
+                    // With goals: gray before first goal's startDate; from that day on, green/blue/orange as usual.
+                    val isBeforeFirstUsage =
+                        validDay && (firstUsageEpoch == null || epochDay < firstUsageEpoch)
                     DayCell(
                         dayLabel = if (validDay) "$dayNum" else "",
                         isCompleted = isCompleted,
                         isToday = isToday,
                         isUpcoming = isUpcoming,
                         isPaused = isPaused,
-                        isBeforeFirstGreen = isBeforeFirstGreen,
+                        isBeforeFirstUsage = isBeforeFirstUsage,
                         onClick = if (validDay) ({ onDayClick(epochDay) }) else null,
                         modifier = Modifier.weight(1f).aspectRatio(1f)
                     )
@@ -481,18 +471,18 @@ private fun DayCell(
     isToday: Boolean,
     isUpcoming: Boolean,
     isPaused: Boolean = false,
-    isBeforeFirstGreen: Boolean = false,
+    isBeforeFirstUsage: Boolean = false,
     onClick: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     val isEmpty = dayLabel.isBlank()
     val backgroundColor = when {
         isEmpty -> GrayUpcoming
+        isBeforeFirstUsage -> GrayUpcoming
         isCompleted -> GreenDone
         isPaused -> OrangePaused
         isToday -> BlueToday
         isUpcoming -> GrayUpcoming
-        isBeforeFirstGreen -> GrayUpcoming
         else -> BlueToday
     }
     Box(

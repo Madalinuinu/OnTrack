@@ -111,6 +111,14 @@ class HomeViewModel(
     private val _globalStreakDays = MutableStateFlow(0)
     val globalStreakDays: StateFlow<Int> = _globalStreakDays.asStateFlow()
 
+    /** Global streak: last day that counted as "all goals complete" (UserPreferences). */
+    val globalLastStreakDateEpoch: StateFlow<Long> = userPreferences.lastStreakDate
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = -1L
+        )
+
     /** True if today all goals are complete (for drawer header fire/snowflake). */
     val allGoalsCompleteToday: StateFlow<Boolean> = combine(
         _todayCompleteMap,
@@ -265,10 +273,8 @@ viewModelScope.launch {
                 _freezeCountMap.value = list.associate { s ->
                     s.id to streakManager.getFreezeCount(s.id)
                 }
-                viewModelScope.launch {
                     streakManager.refreshGlobalStreak(list.map { it.id })
                     _globalStreakDays.value = if (list.isEmpty()) 0 else streakManager.globalStreakFlow().first()
-                }
             }
         }
     }
@@ -281,6 +287,18 @@ viewModelScope.launch {
         viewModelScope.launch {
             habitDao.deleteBySystemId(systemId)
             systemDao.deleteById(systemId)
+            _selectedSystemId.value = null
+        }
+    }
+
+    /** Delete multiple goals (habits + systems). */
+    fun deleteSystems(systemIds: Collection<Long>) {
+        if (systemIds.isEmpty()) return
+        viewModelScope.launch {
+            systemIds.forEach { id ->
+                habitDao.deleteBySystemId(id)
+                systemDao.deleteById(id)
+            }
             _selectedSystemId.value = null
         }
     }
@@ -318,6 +336,10 @@ viewModelScope.launch {
     fun completeHabitToday(systemId: Long, habitId: Long) {
         viewModelScope.launch {
             val today = EffectiveDate.todayEpoch()
+            // If user completes tasks after editing a goal, un-suppress streak recalculation.
+            if (userPreferences.streakSuppressEpochDay.first() == today) {
+                userPreferences.clearStreakSuppress()
+            }
             habitLogDao.toggleHabitCompletion(habitId, today)
             streakManager.refreshStreak(systemId)
             refreshTodayComplete()

@@ -38,6 +38,17 @@ class StreakManager(
      *   on that day to maintain streak.
      */
     suspend fun isDayComplete(systemId: Long, epochDay: Long): Boolean {
+        val today = EffectiveDate.todayEpoch()
+        if (epochDay == today) {
+            val suppressEpochDay = userPreferences.streakSuppressEpochDay.first()
+            if (suppressEpochDay == today) {
+                val suppressSystemId = userPreferences.streakSuppressSystemId.first()
+                if (suppressSystemId == systemId) {
+                    return userPreferences.streakSuppressSystemTodayComplete.first()
+                }
+            }
+        }
+
         val habits = habitDao.getHabitsForSystem(systemId).first()
         if (habits.isEmpty()) return true
 
@@ -95,6 +106,10 @@ class StreakManager(
     suspend fun refreshStreak(systemId: Long) {
         val system = systemDao.getSystemById(systemId) ?: return
         val today = EffectiveDate.todayEpoch()
+
+        val suppressEpochDay = userPreferences.streakSuppressEpochDay.first()
+        if (suppressEpochDay == today) return
+
         val vacationOn = userPreferences.vacationModeEnabled.first()
         val vacationFrom = userPreferences.vacationModeFromEpochDay.first()
         if (vacationOn && vacationFrom >= 0 && today >= vacationFrom) return
@@ -102,7 +117,19 @@ class StreakManager(
         val yesterday = today - 1
         val streak = system.currentStreak
         val lastDate = system.lastStreakDate
+
         val todayComplete = isDayComplete(systemId, today)
+
+        // Still complete today → nothing to recompute (avoids churn from refresh calls).
+        if (lastDate == today && todayComplete) return
+
+        // Streak was credited for today but user unchecked tasks: undo today's credit (same UI as before completing).
+        if (lastDate == today && !todayComplete) {
+            val newStreak = (streak - 1).coerceAtLeast(0)
+            val newLast = if (newStreak <= 0) -1L else yesterday
+            systemDao.updateStreak(systemId, newStreak, newLast)
+            return
+        }
 
         if (todayComplete) {
             val newStreak = when {
@@ -144,6 +171,10 @@ class StreakManager(
     suspend fun refreshGlobalStreak(systemIds: List<Long>) {
         if (systemIds.isEmpty()) return
         val today = EffectiveDate.todayEpoch()
+
+        val suppressEpochDay = userPreferences.streakSuppressEpochDay.first()
+        if (suppressEpochDay == today) return
+
         val vacationOn = userPreferences.vacationModeEnabled.first()
         val vacationFrom = userPreferences.vacationModeFromEpochDay.first()
         if (vacationOn && vacationFrom >= 0 && today >= vacationFrom) return
@@ -152,6 +183,14 @@ class StreakManager(
         val streak = userPreferences.currentStreak.first()
         val lastDate = userPreferences.lastStreakDate.first()
         val todayComplete = systemIds.all { isDayComplete(it, today) }
+
+        // Global streak was credited for today but a goal was unchecked — undo today's credit.
+        if (lastDate == today && !todayComplete) {
+            val newStreak = (streak - 1).coerceAtLeast(0)
+            val newLast = if (newStreak <= 0) -1L else yesterday
+            userPreferences.setStreak(newStreak, newLast)
+            return
+        }
 
         if (todayComplete) {
             val newStreak = when {
@@ -196,7 +235,6 @@ class StreakManager(
         val vacationOn = userPreferences.vacationModeEnabled.first()
         val vacationFrom = userPreferences.vacationModeFromEpochDay.first()
         if (vacationOn && vacationFrom >= 0 && today >= vacationFrom) return 0
-        if (isDayComplete(systemId, today)) return 0
         val last = system.lastStreakDate
         if (last < 0) return 0
         val vacationDays = userPreferences.persistedVacationEpochDays.first()

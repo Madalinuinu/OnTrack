@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- icon_app umple tot layer-ul (108dp) ca movul să ajungă până la margini după mask. -->
-<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item
-        android:drawable="@drawable/icon_app"
-        android:gravity="fill_horizontal|fill_vertical"
-        android:width="108dp"
-        android:height="108dp" />
-</layer-list>

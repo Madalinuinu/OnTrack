@@ -114,7 +114,7 @@ class CreateSystemViewModel(
                         title = item.title.trim(),
                         frequencyType = item.frequencyType,
                         targetCount = item.targetCount.coerceIn(1, 7),
-                        trackTimeEnabled = item.trackTimeEnabled
+                        trackTimeEnabled = false
                     )
                 }
                 habitDao.insertHabits(habits)

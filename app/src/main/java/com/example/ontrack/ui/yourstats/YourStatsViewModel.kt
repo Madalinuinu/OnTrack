@@ -58,6 +58,8 @@ data class YourStatsUiState(
     val globalStreakDays: Int = 0,
     /** True if today all goals are complete (for fire/ice display). */
     val allGoalsCompleteToday: Boolean = false,
+    /** Global streak last date (UserPreferences), for header display when today incomplete. */
+    val globalLastStreakDateEpoch: Long = -1L,
     /** True when vacation mode is on and today is in vacation range; streak shows orange (frozen). */
     val isVacationDay: Boolean = false,
     val isLoading: Boolean = true,
@@ -88,6 +90,8 @@ class YourStatsViewModel(
         val todayEpoch: Long,
         val isVacationDay: Boolean,
         val globalStreakDays: Int,
+        /** UserPreferences last streak date; for header ice number when today toggled incomplete. */
+        val globalLastStreakDateEpoch: Long,
         val habitIdsFiltered: List<Long>,
         val logs: List<HabitLogEntity>,
         val goalsWithHabits: List<Pair<SystemEntity, List<HabitEntity>>>,
@@ -139,6 +143,7 @@ class YourStatsViewModel(
                         todayEpoch = todayEpoch,
                         isVacationDay = isVacationDay,
                         globalStreakDays = 0, // filled in flatMapLatest after refreshGlobalStreak
+                        globalLastStreakDateEpoch = -1L,
                         habitIdsFiltered = habitIdsFiltered,
                         logs = logs,
                         goalsWithHabits = goalsWithHabits,
@@ -172,7 +177,14 @@ class YourStatsViewModel(
                     }
                     streakManager.refreshGlobalStreak(systems.map { it.id })
                     val globalStreakDays = if (systems.isEmpty()) 0 else streakManager.globalStreakFlow().first()
-                    emit(data.copy(completedEpochDays = completed, globalStreakDays = globalStreakDays))
+                    val globalLastStreakDateEpoch = userPreferences.lastStreakDate.first()
+                    emit(
+                        data.copy(
+                            completedEpochDays = completed,
+                            globalStreakDays = globalStreakDays,
+                            globalLastStreakDateEpoch = globalLastStreakDateEpoch
+                        )
+                    )
                 }
             },
                 _selectedRange
@@ -198,6 +210,7 @@ class YourStatsViewModel(
                     totalDaysCompleted = data.completedEpochDays.size,
                     globalStreakDays = data.globalStreakDays,
                     allGoalsCompleteToday = allGoalsCompleteToday,
+                    globalLastStreakDateEpoch = data.globalLastStreakDateEpoch,
                     isVacationDay = data.isVacationDay,
                     isLoading = false,
                     goalsWithHabits = data.goalsWithHabits,
