@@ -19,7 +19,7 @@ import com.example.ontrack.data.local.entity.SystemEntity
         HabitEntity::class,
         HabitLogEntity::class
     ],
-    version = 9,
+    version = 11,
     exportSchema = false
 )
 @TypeConverters(FrequencyTypeConverter::class)
@@ -67,6 +67,16 @@ abstract class AppDatabase : RoomDatabase() {
         val MIGRATION_8_9 = object : Migration(8, 9) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("ALTER TABLE systems ADD COLUMN isTestData INTEGER NOT NULL DEFAULT 0")
+            }
+        }
+        val MIGRATION_9_10 = object : Migration(9, 10) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE habit_logs ADD COLUMN isOngoing INTEGER NOT NULL DEFAULT 0")
+            }
+        }
+        val MIGRATION_10_11 = object : Migration(10, 11) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE habits ADD COLUMN countsForStreakFromEpochDay INTEGER")
             }
         }
     }

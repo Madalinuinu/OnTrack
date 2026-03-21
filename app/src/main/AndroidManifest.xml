@@ -65,6 +65,9 @@
         <receiver
             android:name=".receiver.TimerExpiredReceiver"
             android:exported="false" />
+        <receiver
+            android:name=".receiver.OngoingTaskReceiver"
+            android:exported="false" />
     </application>
 
 </manifest>

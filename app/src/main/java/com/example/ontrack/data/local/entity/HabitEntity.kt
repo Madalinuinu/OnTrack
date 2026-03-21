@@ -28,5 +28,10 @@ data class HabitEntity(
     /** When true, tapping the task opens the timer; when false, tap completes directly. */
     val trackTimeEnabled: Boolean = false,
     /** Last timer duration selected for this habit, in seconds; null until user has started a timer at least once. */
-    val lastTimerDurationSeconds: Int? = null
+    val lastTimerDurationSeconds: Int? = null,
+    /**
+     * First epoch day this habit counts toward streak (inclusive). Null = always counted.
+     * Set to tomorrow when a habit is added via goal edit so today’s streak stays based on pre-edit habits only.
+     */
+    val countsForStreakFromEpochDay: Long? = null
 )

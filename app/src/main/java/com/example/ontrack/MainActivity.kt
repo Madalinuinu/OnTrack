@@ -1,5 +1,6 @@
 package com.example.ontrack
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -45,6 +46,11 @@ import com.example.ontrack.ui.yourstats.YourStatsViewModel
 import com.example.ontrack.ui.yourstats.YourStatsViewModelFactory
 
 class MainActivity : ComponentActivity() {
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -81,7 +87,8 @@ class MainActivity : ComponentActivity() {
                                     factory = HomeViewModelFactory(
                                         database = application.database,
                                         streakManager = application.streakManager,
-                                        userPreferences = application.userPreferences
+                                        userPreferences = application.userPreferences,
+                                        application = application
                                     )
                                 )
                                 if (initialPageToUse == null) {

@@ -16,9 +16,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import com.example.ontrack.util.EffectiveDate
-import java.time.LocalDate
 
 data class EditSystemUiState(
     val systemId: Long = 0L,
@@ -44,18 +44,8 @@ class EditSystemViewModel(
     /** Stable negative ids for newly added habits in edit so reorderable list keys don't conflict. */
     private var nextTempId = -1L
 
-    private var cachedEditTodayEpochDay: Long = -1L
-    private var cachedEditTodayComplete: Boolean = false
-
     init {
-        viewModelScope.launch {
-            val today = EffectiveDate.todayEpoch()
-            cachedEditTodayEpochDay = today
-            cachedEditTodayComplete = streakManager.isDayComplete(systemId, today)
-            // Prevent streak/calandar day status from changing due to habit edits.
-            userPreferences.setStreakSuppressForSystem(systemId, today, cachedEditTodayComplete)
-            load()
-        }
+        viewModelScope.launch { load() }
     }
 
     private suspend fun load() {
@@ -79,6 +69,13 @@ class EditSystemViewModel(
             habits = habits,
             isLoading = false
         )
+    }
+
+    override fun onCleared() {
+        runBlocking(Dispatchers.IO) {
+            userPreferences.clearStreakSuppress()
+        }
+        super.onCleared()
     }
 
     fun updateGoal(goal: String) {
@@ -141,15 +138,8 @@ class EditSystemViewModel(
         viewModelScope.launch {
             _uiState.value = state.copy(isSaving = true)
             withContext(Dispatchers.IO) {
-                // Re-assert suppression during save so any quick transitions don't cause streak flips.
-                val today = cachedEditTodayEpochDay.takeIf { it >= 0 } ?: EffectiveDate.todayEpoch()
-                val dayCompleteForSuppression = if (cachedEditTodayEpochDay == today) {
-                    cachedEditTodayComplete
-                } else {
-                    // init() might not have run / finished yet; compute right now while habits are still unchanged.
-                    streakManager.isDayComplete(systemId, today)
-                }
-                userPreferences.setStreakSuppressForSystem(systemId, today, dayCompleteForSuppression)
+                val today = EffectiveDate.todayEpoch()
+                val streakStartForNewHabits = today + 1
 
                 val system = systemDao.getSystemById(systemId) ?: return@withContext
                 val updated = system.copy(
@@ -160,17 +150,64 @@ class EditSystemViewModel(
                     pausedToEpochDay = null
                 )
                 systemDao.updateSystem(updated)
-                habitDao.deleteBySystemId(systemId)
-                val habits = state.habits.map { item ->
-                    HabitEntity(
-                        systemId = systemId,
-                        title = item.title.trim(),
-                        frequencyType = item.frequencyType,
-                        targetCount = item.targetCount.coerceIn(1, 7),
-                        trackTimeEnabled = false
-                    )
+
+                val existingById = habitDao.getHabitsForSystem(systemId).first().associateBy { it.id }
+                val keptIds = state.habits.mapNotNull { item -> if (item.id > 0) item.id else null }.toSet()
+
+                for (id in existingById.keys - keptIds) {
+                    habitDao.deleteHabitById(id)
                 }
-                habitDao.insertHabits(habits)
+
+                for (item in state.habits) {
+                    val title = item.title.trim()
+                    if (title.isBlank()) continue
+                    val targetCount = item.targetCount.coerceIn(1, 7)
+                    when {
+                        item.id > 0 -> {
+                            val prev = existingById[item.id]
+                            if (prev != null) {
+                                habitDao.updateHabit(
+                                    prev.copy(
+                                        title = title,
+                                        frequencyType = item.frequencyType,
+                                        targetCount = targetCount,
+                                        trackTimeEnabled = false
+                                    )
+                                )
+                            } else {
+                                habitDao.insertHabit(
+                                    HabitEntity(
+                                        systemId = systemId,
+                                        title = title,
+                                        frequencyType = item.frequencyType,
+                                        targetCount = targetCount,
+                                        trackTimeEnabled = false,
+                                        lastTimerDurationSeconds = null,
+                                        countsForStreakFromEpochDay = streakStartForNewHabits
+                                    )
+                                )
+                            }
+                        }
+                        else -> {
+                            habitDao.insertHabit(
+                                HabitEntity(
+                                    systemId = systemId,
+                                    title = title,
+                                    frequencyType = item.frequencyType,
+                                    targetCount = targetCount,
+                                    trackTimeEnabled = false,
+                                    lastTimerDurationSeconds = null,
+                                    countsForStreakFromEpochDay = streakStartForNewHabits
+                                )
+                            )
+                        }
+                    }
+                }
+
+                userPreferences.clearStreakSuppress()
+                val allIds = systemDao.getAllSystems().first().filter { !it.isTestData }.map { it.id }
+                streakManager.refreshStreak(systemId)
+                streakManager.refreshGlobalStreak(allIds)
             }
             _uiState.value = _uiState.value.copy(isSaving = false, navigateBack = true)
         }

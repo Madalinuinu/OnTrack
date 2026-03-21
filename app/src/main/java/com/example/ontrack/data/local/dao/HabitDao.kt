@@ -13,6 +13,12 @@ interface HabitDao {
     @Insert
     suspend fun insertHabits(habits: List<HabitEntity>)
 
+    @Insert
+    suspend fun insertHabit(habit: HabitEntity): Long
+
+    @Query("DELETE FROM habits WHERE id = :habitId")
+    suspend fun deleteHabitById(habitId: Long)
+
     @Query("SELECT * FROM habits WHERE systemId = :systemId ORDER BY id")
     fun getHabitsForSystem(systemId: Long): Flow<List<HabitEntity>>
 

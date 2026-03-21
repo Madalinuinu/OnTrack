@@ -63,6 +63,8 @@ class StreakManager(
             .mapValues { (_, logs) -> logs.distinctBy { it.date }.size }
 
         for (habit in habits) {
+            val streakFrom = habit.countsForStreakFromEpochDay
+            if (streakFrom != null && epochDay < streakFrom) continue
             when (habit.frequencyType) {
                 FrequencyType.DAILY -> {
                     val log = habitLogDao.getLog(habit.id, epochDay) ?: return false

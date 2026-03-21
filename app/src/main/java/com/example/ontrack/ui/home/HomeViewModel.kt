@@ -1,5 +1,7 @@
 package com.example.ontrack.ui.home
 
+import android.app.Application
+import android.widget.Toast
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -32,12 +34,16 @@ import com.example.ontrack.data.preferences.UserPreferences
 import com.example.ontrack.data.local.entity.HabitLogEntity
 import com.example.ontrack.service.TimerStateHolder
 import com.example.ontrack.util.EffectiveDate
+import com.example.ontrack.util.cancelOngoingTaskNotification
+import com.example.ontrack.util.showOngoingTaskNotification
 import kotlinx.coroutines.flow.flow
 
 data class TodayTaskItem(
     val habit: com.example.ontrack.data.local.entity.HabitEntity,
     val goalName: String,
     val isCompletedToday: Boolean = false,
+    /** First tap on Today; second tap completes (see ongoing notification). */
+    val isOngoingToday: Boolean = false,
     val durationMinutes: Int? = null,
     /** How many days this week the habit was completed (for weekly / X per week). */
     val weekCompletionCount: Int = 0
@@ -84,7 +90,8 @@ class HomeViewModel(
     private val habitDao: HabitDao,
     private val habitLogDao: HabitLogDao,
     private val streakManager: StreakManager,
-    private val userPreferences: UserPreferences
+    private val userPreferences: UserPreferences,
+    private val application: Application
 ) : ViewModel() {
 
     private val _selectedSystemId = MutableStateFlow<Long?>(null)
@@ -164,8 +171,9 @@ class HomeViewModel(
             val goalName = systemsList.find { it.id == habit.systemId }?.goal ?: ""
             val log = todayLogs.find { it.habitId == habit.id }
             val isCompletedToday = log?.isCompleted == true
+            val isOngoingToday = log?.isOngoing == true && !isCompletedToday
             val durationMinutes = log?.durationMinutes
-            TodayTaskItem(habit, goalName, isCompletedToday, durationMinutes)
+            TodayTaskItem(habit, goalName, isCompletedToday, isOngoingToday, durationMinutes)
         }
     }.stateIn(
         scope = viewModelScope,
@@ -332,17 +340,58 @@ viewModelScope.launch {
         }
     }
 
-    /** Toggle habit completion for today (used when Track time is OFF). */
-    fun completeHabitToday(systemId: Long, habitId: Long) {
+    /**
+     * Second tap on an ongoing Today task (or equivalent): mark done. Done tasks cannot be undone the same day from Today.
+     */
+    fun onTodayTaskClick(systemId: Long, habitId: Long) {
         viewModelScope.launch {
-            val today = EffectiveDate.todayEpoch()
-            // If user completes tasks after editing a goal, un-suppress streak recalculation.
-            if (userPreferences.streakSuppressEpochDay.first() == today) {
+            val dateEpoch = _selectedDate.value.toEpochDay()
+            if (_selectedDate.value != EffectiveDate.today()) return@launch
+
+            val log = habitLogDao.getLog(habitId, dateEpoch)
+            val isOngoing = log?.isOngoing == true && log.isCompleted != true
+            if (!isOngoing) return@launch
+
+            if (userPreferences.streakSuppressEpochDay.first() == dateEpoch) {
                 userPreferences.clearStreakSuppress()
             }
-            habitLogDao.toggleHabitCompletion(habitId, today)
+            habitLogDao.completeOngoingAsDone(habitId, dateEpoch)
             streakManager.refreshStreak(systemId)
             refreshTodayComplete()
+            cancelOngoingTaskNotification(application, habitId)
+        }
+    }
+
+    /** After user confirms in the dialog: start ongoing + optional notification. */
+    fun confirmStartOngoingTask(systemId: Long, habitId: Long, habitTitle: String) {
+        viewModelScope.launch {
+            val dateEpoch = _selectedDate.value.toEpochDay()
+            if (_selectedDate.value != EffectiveDate.today()) return@launch
+
+            val log = habitLogDao.getLog(habitId, dateEpoch)
+            if (log?.isCompleted == true) return@launch
+            if (log?.isOngoing == true) return@launch
+
+            val ongoingToday = habitLogDao.getOngoingLogsForDate(dateEpoch)
+            val otherOngoing = ongoingToday.any { it.habitId != habitId }
+            if (otherOngoing) {
+                Toast.makeText(
+                    application,
+                    "Finish your current task before starting another.",
+                    Toast.LENGTH_SHORT
+                ).show()
+                return@launch
+            }
+            habitLogDao.markOngoing(habitId, dateEpoch)
+            if (userPreferences.notificationsEnabled.first()) {
+                showOngoingTaskNotification(
+                    application,
+                    habitId,
+                    systemId,
+                    habitTitle,
+                    dateEpoch
+                )
+            }
         }
     }
 
@@ -404,7 +453,14 @@ viewModelScope.launch {
                         val habit = habits.find { it.id == log.habitId } ?: return@mapNotNull null
                         val goalName = systemsList.find { it.id == habit.systemId }?.goal ?: ""
                         val wc = weekCompletedByHabit[habit.id] ?: 0
-                        TodayTaskItem(habit, goalName, isCompletedToday = true, durationMinutes = log.durationMinutes, weekCompletionCount = wc)
+                        TodayTaskItem(
+                            habit,
+                            goalName,
+                            isCompletedToday = true,
+                            isOngoingToday = false,
+                            durationMinutes = log.durationMinutes,
+                            weekCompletionCount = wc
+                        )
                     }
             }
             date.isAfter(today) -> {
@@ -419,7 +475,14 @@ viewModelScope.launch {
                     .map { habit ->
                         val goalName = systemsList.find { it.id == habit.systemId }?.goal ?: ""
                         val wc = weekCompletedByHabit[habit.id] ?: 0
-                        TodayTaskItem(habit, goalName, isCompletedToday = false, durationMinutes = null, weekCompletionCount = wc)
+                        TodayTaskItem(
+                            habit,
+                            goalName,
+                            isCompletedToday = false,
+                            isOngoingToday = false,
+                            durationMinutes = null,
+                            weekCompletionCount = wc
+                        )
                     }
             }
             else -> {
@@ -436,10 +499,12 @@ viewModelScope.launch {
                         val goalName = systemsList.find { it.id == habit.systemId }?.goal ?: ""
                         val log = dayLogs.find { it.habitId == habit.id }
                         val wc = weekCompletedByHabit[habit.id] ?: 0
+                        val completed = log?.isCompleted == true
                         TodayTaskItem(
                             habit,
                             goalName,
-                            isCompletedToday = log?.isCompleted == true,
+                            isCompletedToday = completed,
+                            isOngoingToday = log?.isOngoing == true && !completed,
                             durationMinutes = log?.durationMinutes,
                             weekCompletionCount = wc
                         )

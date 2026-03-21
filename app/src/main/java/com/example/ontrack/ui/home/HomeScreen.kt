@@ -58,6 +58,7 @@ import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.material3.DrawerValue
@@ -78,9 +79,14 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.ontrack.data.local.entity.SystemEntity
+import androidx.activity.ComponentActivity
+import com.example.ontrack.util.EXTRA_SCROLL_TO_TODAY
 import com.example.ontrack.util.playTimerFinishedSound
 import com.example.ontrack.util.showTimerFinishedNotification
 import com.example.ontrack.ui.components.StreakBadge
@@ -132,6 +138,22 @@ fun HomeScreen(
     var drawerScreen by remember { mutableStateOf("menu") }
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    DisposableEffect(lifecycleOwner, pagerState) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                val act = context as? ComponentActivity ?: return@LifecycleEventObserver
+                if (act.intent.getBooleanExtra(EXTRA_SCROLL_TO_TODAY, false)) {
+                    scope.launch { pagerState.animateScrollToPage(1) }
+                    act.intent.removeExtra(EXTRA_SCROLL_TO_TODAY)
+                    act.setIntent(act.intent)
+                }
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
     val todayTimerFinished by viewModel.todayTimerFinished.collectAsState(initial = null)
 
     LaunchedEffect(todayTimerFinished, soundEnabled, notificationsEnabled) {
@@ -528,7 +550,6 @@ Text(
                         onStartTimer = onStartTimerFromToday,
                         onPauseTimer = onPauseTimer,
                         onResumeTimer = onResumeTimer,
-                        onCompleteHabit = { systemId, habitId -> viewModel.completeHabitToday(systemId, habitId) },
                         vacationModeEnabled = vacationModeEnabled,
                         vacationModeFromEpochDay = vacationModeFromEpochDay,
                         persistedVacationEpochDays = persistedVacationEpochDays

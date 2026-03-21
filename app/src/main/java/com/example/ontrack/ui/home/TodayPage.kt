@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -39,6 +40,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -50,6 +52,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -61,6 +64,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.outlined.HourglassEmpty
+import androidx.compose.material.icons.outlined.PlayCircle
 import com.example.ontrack.data.local.entity.FrequencyType
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -70,6 +75,7 @@ import sh.calvin.reorderable.rememberReorderableLazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.SheetValue
+import androidx.compose.ui.window.Dialog
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -78,7 +84,6 @@ fun TodayPage(
     onStartTimer: (systemId: Long, habitId: Long, habitTitle: String, totalSeconds: Int) -> Unit,
     onPauseTimer: () -> Unit = {},
     onResumeTimer: () -> Unit = {},
-    onCompleteHabit: (systemId: Long, habitId: Long) -> Unit,
     vacationModeEnabled: Boolean = false,
     vacationModeFromEpochDay: Long = -1L,
     persistedVacationEpochDays: Set<Long> = emptySet(),
@@ -218,6 +223,21 @@ fun TodayPage(
             }
         } else {
         val isToday = selectedDate == com.example.ontrack.util.EffectiveDate.today()
+        var pendingStartConfirm by remember { mutableStateOf<TodayTaskItem?>(null) }
+        pendingStartConfirm?.let { pending ->
+            StartTaskConfirmDialog(
+                pending = pending,
+                onDismiss = { pendingStartConfirm = null },
+                onConfirm = {
+                    viewModel.confirmStartOngoingTask(
+                        pending.habit.systemId,
+                        pending.habit.id,
+                        pending.habit.title
+                    )
+                    pendingStartConfirm = null
+                }
+            )
+        }
         if (todayTasksFiltered.isEmpty()) {
             Box(
                 modifier = Modifier
@@ -278,10 +298,19 @@ fun TodayPage(
                             trackTimeEnabled = false,
                             activeTimer = null,
                             isInteractiveDay = isToday,
+                            taskTapEnabled = !item.isCompletedToday,
                             interactionSource = interactionSource,
                             isDragging = isDragging,
                             onCardClick = {
-                                onCompleteHabit(item.habit.systemId, item.habit.id)
+                                when {
+                                    item.isCompletedToday -> { }
+                                    item.isOngoingToday ->
+                                        viewModel.onTodayTaskClick(
+                                            item.habit.systemId,
+                                            item.habit.id
+                                        )
+                                    else -> pendingStartConfirm = item
+                                }
                             },
                             onStartClick = {},
                             onPauseClick = {},
@@ -457,11 +486,129 @@ private fun DraggableGoalChip(
 }
 
 @Composable
+private fun StartTaskConfirmDialog(
+    pending: TodayTaskItem,
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit
+) {
+    val scheme = MaterialTheme.colorScheme
+    Dialog(onDismissRequest = onDismiss) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .widthIn(max = 300.dp),
+            shape = RoundedCornerShape(20.dp),
+            colors = CardDefaults.cardColors(containerColor = scheme.surface),
+            elevation = CardDefaults.cardElevation(defaultElevation = 10.dp)
+        ) {
+            Column(modifier = Modifier.fillMaxWidth()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(
+                            brush = Brush.horizontalGradient(
+                                colors = listOf(
+                                    scheme.primary,
+                                    scheme.primary.copy(alpha = 0.85f),
+                                    Color(0xFF58CCE8)
+                                )
+                            ),
+                            shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
+                        )
+                        .padding(horizontal = 18.dp, vertical = 14.dp)
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .background(
+                                    color = Color.White.copy(alpha = 0.22f),
+                                    shape = RoundedCornerShape(12.dp)
+                                )
+                                .padding(8.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.PlayCircle,
+                                contentDescription = null,
+                                tint = Color.White,
+                                modifier = Modifier.size(22.dp)
+                            )
+                        }
+                        Text(
+                            text = "Start task",
+                            style = MaterialTheme.typography.titleMedium.copy(
+                                fontWeight = FontWeight.Bold,
+                                letterSpacing = 0.02.sp
+                            ),
+                            color = Color.White
+                        )
+                    }
+                }
+                Column(
+                    modifier = Modifier.padding(horizontal = 18.dp, vertical = 16.dp)
+                ) {
+                    Text(
+                        text = pending.habit.title,
+                        style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
+                        color = scheme.onSurface,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = pending.goalName,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = scheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        OutlinedButton(
+                            onClick = onDismiss,
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(12.dp),
+                            border = BorderStroke(2.dp, scheme.outline),
+                            colors = ButtonDefaults.outlinedButtonColors(contentColor = scheme.onSurface)
+                        ) {
+                            Text("Cancel", fontWeight = FontWeight.SemiBold)
+                        }
+                        Button(
+                            onClick = onConfirm,
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = scheme.primary,
+                                contentColor = scheme.onPrimary
+                            ),
+                            elevation = ButtonDefaults.buttonElevation(
+                                defaultElevation = 2.dp,
+                                pressedElevation = 4.dp
+                            )
+                        ) {
+                            Text("Start", fontWeight = FontWeight.SemiBold)
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
 private fun TodayTaskCard(
     task: TodayTaskItem,
     trackTimeEnabled: Boolean,
     activeTimer: TodayActiveTimer?,
     isInteractiveDay: Boolean,
+    /** When false, tap does not run task actions (e.g. Done cannot be toggled off). */
+    taskTapEnabled: Boolean = true,
     modifier: Modifier = Modifier,
     interactionSource: MutableInteractionSource? = null,
     isDragging: Boolean = false,
@@ -471,13 +618,15 @@ private fun TodayTaskCard(
     onResumeClick: () -> Unit
 ) {
     val isCompleted = task.isCompletedToday
+    val isOngoing = task.isOngoingToday && !isCompleted
+    val allowTaskTap = isInteractiveDay && !trackTimeEnabled && taskTapEnabled
     Card(
         modifier = modifier.then(
-            if (isInteractiveDay && !trackTimeEnabled && interactionSource == null) Modifier.clickable(onClick = onCardClick)
+            if (allowTaskTap && interactionSource == null) Modifier.clickable(onClick = onCardClick)
             else Modifier
         ),
         onClick = {
-            if (interactionSource != null && isInteractiveDay && !trackTimeEnabled) onCardClick()
+            if (interactionSource != null && allowTaskTap && !trackTimeEnabled) onCardClick()
         },
         interactionSource = interactionSource,
         shape = RoundedCornerShape(16.dp),
@@ -534,34 +683,59 @@ private fun TodayTaskCard(
                     }
                 }
             }
-            if (isCompleted) {
-                Column(horizontalAlignment = Alignment.End) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(6.dp)
-                    ) {
-                        Text(
-                            text = "Done",
-                            style = MaterialTheme.typography.titleMedium.copy(
-                                fontSize = 18.sp,
-                                fontWeight = FontWeight.Bold
-                            ),
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                        Icon(
-                            imageVector = Icons.Filled.Check,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(20.dp)
-                        )
+            when {
+                isCompleted -> {
+                    Column(horizontalAlignment = Alignment.End) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            Text(
+                                text = "Done",
+                                style = MaterialTheme.typography.titleMedium.copy(
+                                    fontSize = 18.sp,
+                                    fontWeight = FontWeight.Bold
+                                ),
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                            Icon(
+                                imageVector = Icons.Filled.Check,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+                        val minutes = task.durationMinutes
+                        if (minutes != null && minutes > 0) {
+                            Text(
+                                text = "$minutes min",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Color.Gray
+                            )
+                        }
                     }
-                    val minutes = task.durationMinutes
-                    if (minutes != null && minutes > 0) {
-                        Text(
-                            text = "$minutes min",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = Color.Gray
-                        )
+                }
+                isOngoing -> {
+                    Column(horizontalAlignment = Alignment.End) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            Text(
+                                text = "Ongoing",
+                                style = MaterialTheme.typography.titleMedium.copy(
+                                    fontSize = 18.sp,
+                                    fontWeight = FontWeight.Bold
+                                ),
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                            Icon(
+                                imageVector = Icons.Outlined.HourglassEmpty,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
                     }
                 }
             }

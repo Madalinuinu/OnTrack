@@ -24,6 +24,8 @@ data class HabitLogEntity(
     /** Date as epoch day (days since Unix epoch) for simple range queries. */
     val date: Long,
     val isCompleted: Boolean,
+    /** User started the task from Today (first tap); cleared when marked done. */
+    val isOngoing: Boolean = false,
     /** Time spent in minutes (e.g. from timer); null if not tracked. */
     val durationMinutes: Int? = null
 )
