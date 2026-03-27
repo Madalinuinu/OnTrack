@@ -2,6 +2,7 @@ package com.example.ontrack.ui.yourstats
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,11 +18,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AcUnit
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.LocalFireDepartment
@@ -34,10 +37,11 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.ripple
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberModalBottomSheetState
-import com.example.ontrack.data.local.entity.FrequencyType
 import com.example.ontrack.data.local.entity.HabitEntity
 import com.example.ontrack.data.local.entity.HabitLogEntity
 import com.example.ontrack.data.local.entity.SystemEntity
@@ -48,6 +52,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -142,6 +147,16 @@ fun YourStatsScreen(
                     onDayClick = { selectedDayEpoch = it }
                 )
                 StatsLegend(modifier = Modifier.padding(top = 20.dp))
+                StatsGoalPickerSection(
+                    goalsWithHabits = uiState.goalsWithHabits,
+                    displayedGoal = uiState.statsDisplayedGoal,
+                    habitDoneCountById = uiState.habitDoneCountById,
+                    habitTrackedSecondsById = uiState.habitTrackedSecondsById,
+                    onSelectGoal = viewModel::selectStatsGoal,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 24.dp, bottom = 24.dp)
+                )
             }
         }
     }
@@ -174,15 +189,8 @@ private fun AllGoalsDayDetailSheet(
     modifier: Modifier = Modifier
 ) {
     val date = LocalDate.ofEpochDay(epochDay)
-    val dayOfWeek = date.dayOfWeek.value
-    val weekStartEpoch = epochDay - (dayOfWeek - 1)
-    val weekEndEpoch = weekStartEpoch + 6
     val logsForDay = allLogs.filter { it.date == epochDay }
     val logByHabit = logsForDay.associateBy { it.habitId }
-    val weekLogsByHabit = allLogs
-        .filter { it.date in weekStartEpoch..weekEndEpoch && it.isCompleted }
-        .groupBy { it.habitId }
-        .mapValues { (_, list) -> list.distinctBy { it.date }.size }
     val textPrimary = Color.Black
     val textSecondary = Color(0xFF424242)
     Column(
@@ -205,20 +213,20 @@ private fun AllGoalsDayDetailSheet(
         )
         goalsWithHabits.forEach { (system, habits) ->
             if (habits.isEmpty()) return@forEach
+            val completedHabitsForDay = habits.filter { habit ->
+                logByHabit[habit.id]?.isCompleted == true
+            }
+            if (completedHabitsForDay.isEmpty()) return@forEach
             Text(
                 text = system.goal,
                 style = MaterialTheme.typography.titleSmall,
                 color = textPrimary,
                 modifier = Modifier.padding(top = 12.dp, bottom = 4.dp)
             )
-            habits.forEach { habit ->
+            completedHabitsForDay.forEach { habit ->
                 val log = logByHabit[habit.id]
-                val done = when (habit.frequencyType) {
-                    FrequencyType.DAILY -> log?.isCompleted == true
-                    FrequencyType.WEEKLY -> (weekLogsByHabit[habit.id] ?: 0) >= 1
-                    FrequencyType.SPECIFIC_DAYS -> (weekLogsByHabit[habit.id] ?: 0) >= habit.targetCount
-                }
-                val minutes = log?.durationMinutes
+                val trackedSeconds = log?.sessionDurationSeconds?.toLong()
+                    ?: ((log?.durationMinutes ?: 0) * 60L)
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -233,21 +241,52 @@ private fun AllGoalsDayDetailSheet(
                         modifier = Modifier.weight(1f)
                     )
                     Text(
-                        text = if (done) "Done" else "Not done yet",
+                        text = "Done",
                         style = MaterialTheme.typography.labelMedium,
-                        color = if (done) GreenDone else BlueToday
+                        color = GreenDone
                     )
-                    if (minutes != null && minutes > 0) {
-                        Text(
-                            text = "%.1f h".format(minutes / 60.0),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = textSecondary,
-                            modifier = Modifier.padding(start = 8.dp)
-                        )
-                    }
+                    Text(
+                        text = formatTrackedDurationForDaySheet(trackedSeconds),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = textSecondary,
+                        modifier = Modifier.padding(start = 8.dp)
+                    )
                 }
             }
         }
+
+        if (goalsWithHabits.none { (_, habits) ->
+                habits.any { habit -> logByHabit[habit.id]?.isCompleted == true }
+            }
+        ) {
+            Text(
+                text = "No completed tasks on this day yet.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = textSecondary,
+                modifier = Modifier.padding(top = 12.dp)
+            )
+        }
+    }
+}
+
+private fun formatTrackedDurationForDaySheet(totalSeconds: Long): String {
+    val safeSeconds = totalSeconds.coerceAtLeast(0L)
+    val hours = safeSeconds / 3600
+    val minutes = (safeSeconds % 3600) / 60
+    val seconds = safeSeconds % 60
+    return when {
+        hours > 0 -> {
+            if (minutes > 0 || seconds > 0) {
+                "%d h %d min %d sec".format(hours, minutes, seconds)
+            } else {
+                "%d h".format(hours)
+            }
+        }
+        minutes > 0 -> {
+            if (seconds > 0) "%d min %d sec".format(minutes, seconds)
+            else "%d min".format(minutes)
+        }
+        else -> "%d sec".format(seconds)
     }
 }
 
@@ -499,6 +538,142 @@ private fun DayCell(
                 style = MaterialTheme.typography.bodyMedium,
                 color = Color.White
             )
+        }
+    }
+}
+
+private fun formatTrackedHoursForStats(totalSeconds: Long): String {
+    if (totalSeconds < 60) return "0.0 h"
+    return "%.1f h".format(totalSeconds / 3600.0)
+}
+
+@Composable
+private fun StatsGoalPickerSection(
+    goalsWithHabits: List<Pair<SystemEntity, List<HabitEntity>>>,
+    displayedGoal: Pair<SystemEntity, List<HabitEntity>>?,
+    habitDoneCountById: Map<Long, Int>,
+    habitTrackedSecondsById: Map<Long, Long>,
+    onSelectGoal: (Long) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    if (goalsWithHabits.isEmpty() || displayedGoal == null) return
+    var expanded by remember { mutableStateOf(false) }
+    val (system, habits) = displayedGoal
+    val scheme = MaterialTheme.colorScheme
+    val menuSurface = Color.White
+    val menuItemText = Color(0xFF666666)
+    val menuShape = RoundedCornerShape(12.dp)
+    Column(modifier = modifier) {
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = ripple(
+                        bounded = true,
+                        color = Color.White.copy(alpha = 0.28f)
+                    ),
+                    onClick = { expanded = !expanded }
+                ),
+            shape = RoundedCornerShape(12.dp),
+            color = scheme.surface,
+            border = BorderStroke(1.dp, scheme.outline)
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 14.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Select goal",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = scheme.onSurface,
+                    maxLines = 1,
+                    modifier = Modifier.weight(1f)
+                )
+                Icon(
+                    imageVector = Icons.Filled.ArrowDropDown,
+                    contentDescription = null,
+                    tint = scheme.onSurfaceVariant
+                )
+            }
+        }
+        if (expanded) {
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp),
+                shape = menuShape,
+                color = menuSurface,
+                tonalElevation = 0.dp,
+                shadowElevation = 8.dp,
+                border = BorderStroke(1.dp, scheme.outline)
+            ) {
+                Column(modifier = Modifier.padding(vertical = 4.dp)) {
+                    goalsWithHabits.forEach { (goalSystem, _) ->
+                        val selected = goalSystem.id == system.id
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    onSelectGoal(goalSystem.id)
+                                    expanded = false
+                                }
+                                .padding(horizontal = 16.dp, vertical = 12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = goalSystem.goal,
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = if (selected) scheme.primary else menuItemText
+                            )
+                        }
+                    }
+                }
+            }
+        }
+        Text(
+            text = system.goal,
+            style = MaterialTheme.typography.titleLarge,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.padding(top = 20.dp)
+        )
+        Column(modifier = Modifier.padding(start = 20.dp, top = 6.dp)) {
+            habits.forEach { habit ->
+                val doneCount = habitDoneCountById[habit.id] ?: 0
+                val trackedSec = habitTrackedSecondsById[habit.id] ?: 0L
+                val doneLabel = if (doneCount == 1) "1 time" else "$doneCount times"
+                val timeLabel = formatTrackedHoursForStats(trackedSec)
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 12.dp),
+                    verticalAlignment = Alignment.Top
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .padding(top = 7.dp, end = 10.dp)
+                            .size(7.dp)
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.onSurfaceVariant)
+                    )
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = habit.title,
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Text(
+                            text = "Done: $doneLabel · $timeLabel",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.9f),
+                            modifier = Modifier.padding(top = 5.dp)
+                        )
+                    }
+                }
+            }
         }
     }
 }

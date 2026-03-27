@@ -65,7 +65,13 @@ data class YourStatsUiState(
     val isLoading: Boolean = true,
     /** For day-detail sheet: goals with their habits; empty when no day selected. */
     val goalsWithHabits: List<Pair<SystemEntity, List<HabitEntity>>> = emptyList(),
-    val allLogs: List<HabitLogEntity> = emptyList()
+    val allLogs: List<HabitLogEntity> = emptyList(),
+    /** Goal + tasks shown under the stats legend (persisted pick or first goal). */
+    val statsDisplayedGoal: Pair<SystemEntity, List<HabitEntity>>? = null,
+    /** Per habit: how many distinct days marked completed (from habit_logs). */
+    val habitDoneCountById: Map<Long, Int> = emptyMap(),
+    /** Per habit: total tracked seconds (Today start→done + timer); summed for display hours. */
+    val habitTrackedSecondsById: Map<Long, Long> = emptyMap()
 )
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -82,6 +88,12 @@ class YourStatsViewModel(
 
     private val _selectedRange = MutableStateFlow(StatsRange.LAST_7_DAYS)
     fun setRange(range: StatsRange) { _selectedRange.value = range }
+
+    fun selectStatsGoal(systemId: Long) {
+        viewModelScope.launch {
+            userPreferences.setStatsSelectedGoalSystemId(systemId)
+        }
+    }
 
     private data class StatsData(
         val goalTimeItems: List<GoalTimeItem>,
@@ -125,10 +137,18 @@ class YourStatsViewModel(
                     val pausedEpochDays = if (vacationOn && vacationFrom >= 0) {
                         (vacationFrom..todayEpoch).toSet()
                     } else emptySet()
-                    val logMinutesByHabit = logs
-                        .filter { it.isCompleted && (it.durationMinutes ?: 0) > 0 }
+                    val logSecondsByHabit = logs
+                        .filter { it.isCompleted }
                         .groupBy { it.habitId }
-                        .mapValues { (_, list) -> list.sumOf { it.durationMinutes ?: 0 } }
+                        .mapValues { (_, list) ->
+                            list.sumOf { log ->
+                                val s = log.sessionDurationSeconds
+                                if (s != null && s > 0) s.toLong()
+                                else (log.durationMinutes ?: 0) * 60L
+                            }
+                        }
+                    val logMinutesByHabit =
+                        logSecondsByHabit.mapValues { (_, sec) -> (sec / 60L).toInt() }
                     val goalTimeItems = systemsFiltered.map { system ->
                         val systemHabits = habitsBySystem[system.id] ?: emptyList()
                         val total = systemHabits.sumOf { habit -> logMinutesByHabit[habit.id] ?: 0 }
@@ -187,8 +207,9 @@ class YourStatsViewModel(
                     )
                 }
             },
-                _selectedRange
-            ) { data, selectedRange ->
+                _selectedRange,
+                userPreferences.statsSelectedGoalSystemId
+            ) { data, selectedRange, statsGoalSystemIdPref ->
                 val chartData = buildChartData(
                     selectedRange = selectedRange,
                     todayEpoch = data.todayEpoch,
@@ -198,6 +219,10 @@ class YourStatsViewModel(
                 )
                 val allGoalsCompleteToday = data.todayEpoch in data.completedEpochDays
                 val firstCompletedEpoch = data.completedEpochDays.minOrNull()
+                val statsDisplayedGoal =
+                    resolveStatsDisplayedGoal(data.goalsWithHabits, statsGoalSystemIdPref)
+                val habitDoneCountById = buildHabitDoneCounts(data.logs)
+                val habitTrackedSecondsById = buildHabitTrackedSeconds(data.logs)
                 YourStatsUiState(
                     goalTimeItems = data.goalTimeItems,
                     chartData = chartData,
@@ -214,10 +239,45 @@ class YourStatsViewModel(
                     isVacationDay = data.isVacationDay,
                     isLoading = false,
                     goalsWithHabits = data.goalsWithHabits,
-                    allLogs = data.logs
+                    allLogs = data.logs,
+                    statsDisplayedGoal = statsDisplayedGoal,
+                    habitDoneCountById = habitDoneCountById,
+                    habitTrackedSecondsById = habitTrackedSecondsById
                 )
             }.collect { _uiState.value = it }
         }
+    }
+
+    private fun buildHabitDoneCounts(logs: List<HabitLogEntity>): Map<Long, Int> =
+        logs
+            .filter { it.isCompleted }
+            .groupBy { it.habitId }
+            .mapValues { (_, entries) -> entries.size }
+
+    private fun buildHabitTrackedSeconds(logs: List<HabitLogEntity>): Map<Long, Long> =
+        logs
+            .filter { it.isCompleted }
+            .groupBy { it.habitId }
+            .mapValues { (_, entries) ->
+                entries.sumOf { log ->
+                    val s = log.sessionDurationSeconds
+                    if (s != null && s > 0) s.toLong()
+                    else (log.durationMinutes ?: 0) * 60L
+                }
+            }
+
+    private fun resolveStatsDisplayedGoal(
+        goalsWithHabits: List<Pair<SystemEntity, List<HabitEntity>>>,
+        persistedSystemId: Long
+    ): Pair<SystemEntity, List<HabitEntity>>? {
+        if (goalsWithHabits.isEmpty()) return null
+        val validIds = goalsWithHabits.map { it.first.id }.toSet()
+        val id = if (persistedSystemId >= 0L && persistedSystemId in validIds) {
+            persistedSystemId
+        } else {
+            goalsWithHabits.first().first.id
+        }
+        return goalsWithHabits.firstOrNull { it.first.id == id }
     }
 
     private fun buildChartData(
@@ -232,7 +292,14 @@ class YourStatsViewModel(
         val dayLogs = logs
             .filter { it.isCompleted && it.habitId in habitIdsFiltered }
             .groupBy { it.date }
-            .mapValues { (_, list) -> list.sumOf { it.durationMinutes ?: 0 } }
+            .mapValues { (_, list) ->
+                val sec = list.sumOf { log ->
+                    val s = log.sessionDurationSeconds
+                    if (s != null && s > 0) s.toLong()
+                    else (log.durationMinutes ?: 0) * 60L
+                }
+                (sec / 60L).toInt()
+            }
         return when (selectedRange) {
             StatsRange.LAST_7_DAYS -> {
                 (0..6).map { offset ->

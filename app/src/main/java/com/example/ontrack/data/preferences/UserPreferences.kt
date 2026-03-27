@@ -58,6 +58,9 @@ private object Keys {
 
     /** Cached isDayComplete(systemId, todayEpoch) value used while editing. */
     val STREAK_SUPPRESS_SYSTEM_TODAY_COMPLETE = booleanPreferencesKey("streak_suppress_system_today_complete")
+
+    /** Your Stats: last picked system (goal) id; -1 = use first goal until user picks. */
+    val STATS_SELECTED_GOAL_SYSTEM_ID = longPreferencesKey("stats_selected_goal_system_id")
 }
 
 class UserPreferences(context: Context) {
@@ -141,6 +144,10 @@ class UserPreferences(context: Context) {
 
     val streakSuppressSystemTodayComplete: Flow<Boolean> = dataStore.data.map { prefs ->
         prefs[Keys.STREAK_SUPPRESS_SYSTEM_TODAY_COMPLETE] ?: false
+    }
+
+    val statsSelectedGoalSystemId: Flow<Long> = dataStore.data.map { prefs ->
+        prefs[Keys.STATS_SELECTED_GOAL_SYSTEM_ID] ?: -1L
     }
 
     suspend fun setSleepTimes(bedtimeMinutes: Int, wakeMinutes: Int) {
@@ -272,6 +279,12 @@ class UserPreferences(context: Context) {
         dataStore.edit { prefs ->
             prefs[Keys.GLOBAL_FREEZE_MONTH_KEY] = monthKey
             prefs[Keys.GLOBAL_FREEZE_DAYS_USED_THIS_MONTH] = daysUsed
+        }
+    }
+
+    suspend fun setStatsSelectedGoalSystemId(systemId: Long) {
+        dataStore.edit { prefs ->
+            prefs[Keys.STATS_SELECTED_GOAL_SYSTEM_ID] = systemId
         }
     }
 

@@ -42,18 +42,18 @@ public final class AppDatabase_Impl extends AppDatabase {
   @Override
   @NonNull
   protected SupportSQLiteOpenHelper createOpenHelper(@NonNull final DatabaseConfiguration config) {
-    final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(config, new RoomOpenHelper.Delegate(11) {
+    final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(config, new RoomOpenHelper.Delegate(12) {
       @Override
       public void createAllTables(@NonNull final SupportSQLiteDatabase db) {
         db.execSQL("CREATE TABLE IF NOT EXISTS `systems` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `goal` TEXT NOT NULL, `duration` INTEGER, `startDate` INTEGER NOT NULL, `sortOrder` INTEGER NOT NULL, `currentStreak` INTEGER NOT NULL, `lastStreakDate` INTEGER NOT NULL, `pausedFromEpochDay` INTEGER, `pausedToEpochDay` INTEGER, `freezeMonthKey` INTEGER NOT NULL, `freezeDaysUsedThisMonth` INTEGER NOT NULL, `isTestData` INTEGER NOT NULL)");
         db.execSQL("CREATE TABLE IF NOT EXISTS `habits` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `systemId` INTEGER NOT NULL, `title` TEXT NOT NULL, `frequencyType` TEXT NOT NULL, `targetCount` INTEGER NOT NULL, `trackTimeEnabled` INTEGER NOT NULL, `lastTimerDurationSeconds` INTEGER, `countsForStreakFromEpochDay` INTEGER, FOREIGN KEY(`systemId`) REFERENCES `systems`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )");
         db.execSQL("CREATE INDEX IF NOT EXISTS `index_habits_systemId` ON `habits` (`systemId`)");
-        db.execSQL("CREATE TABLE IF NOT EXISTS `habit_logs` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `habitId` INTEGER NOT NULL, `date` INTEGER NOT NULL, `isCompleted` INTEGER NOT NULL, `isOngoing` INTEGER NOT NULL, `durationMinutes` INTEGER, FOREIGN KEY(`habitId`) REFERENCES `habits`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )");
+        db.execSQL("CREATE TABLE IF NOT EXISTS `habit_logs` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `habitId` INTEGER NOT NULL, `date` INTEGER NOT NULL, `isCompleted` INTEGER NOT NULL, `isOngoing` INTEGER NOT NULL, `durationMinutes` INTEGER, `ongoingStartedAtMillis` INTEGER, `sessionDurationSeconds` INTEGER, FOREIGN KEY(`habitId`) REFERENCES `habits`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )");
         db.execSQL("CREATE INDEX IF NOT EXISTS `index_habit_logs_habitId` ON `habit_logs` (`habitId`)");
         db.execSQL("CREATE INDEX IF NOT EXISTS `index_habit_logs_date` ON `habit_logs` (`date`)");
         db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_habit_logs_habitId_date` ON `habit_logs` (`habitId`, `date`)");
         db.execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)");
-        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '91ea71943945f6ae074e553ad896f191')");
+        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'a387c541c68e22e8492633f2c7bb0b72')");
       }
 
       @Override
@@ -148,13 +148,15 @@ public final class AppDatabase_Impl extends AppDatabase {
                   + " Expected:\n" + _infoHabits + "\n"
                   + " Found:\n" + _existingHabits);
         }
-        final HashMap<String, TableInfo.Column> _columnsHabitLogs = new HashMap<String, TableInfo.Column>(6);
+        final HashMap<String, TableInfo.Column> _columnsHabitLogs = new HashMap<String, TableInfo.Column>(8);
         _columnsHabitLogs.put("id", new TableInfo.Column("id", "INTEGER", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsHabitLogs.put("habitId", new TableInfo.Column("habitId", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsHabitLogs.put("date", new TableInfo.Column("date", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsHabitLogs.put("isCompleted", new TableInfo.Column("isCompleted", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsHabitLogs.put("isOngoing", new TableInfo.Column("isOngoing", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsHabitLogs.put("durationMinutes", new TableInfo.Column("durationMinutes", "INTEGER", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsHabitLogs.put("ongoingStartedAtMillis", new TableInfo.Column("ongoingStartedAtMillis", "INTEGER", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsHabitLogs.put("sessionDurationSeconds", new TableInfo.Column("sessionDurationSeconds", "INTEGER", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
         final HashSet<TableInfo.ForeignKey> _foreignKeysHabitLogs = new HashSet<TableInfo.ForeignKey>(1);
         _foreignKeysHabitLogs.add(new TableInfo.ForeignKey("habits", "CASCADE", "NO ACTION", Arrays.asList("habitId"), Arrays.asList("id")));
         final HashSet<TableInfo.Index> _indicesHabitLogs = new HashSet<TableInfo.Index>(3);
@@ -170,7 +172,7 @@ public final class AppDatabase_Impl extends AppDatabase {
         }
         return new RoomOpenHelper.ValidationResult(true, null);
       }
-    }, "91ea71943945f6ae074e553ad896f191", "9684628253c80770a946cb7a0ede43b6");
+    }, "a387c541c68e22e8492633f2c7bb0b72", "60d6250956645f0b5c871602c155ef10");
     final SupportSQLiteOpenHelper.Configuration _sqliteConfig = SupportSQLiteOpenHelper.Configuration.builder(config.context).name(config.name).callback(_openCallback).build();
     final SupportSQLiteOpenHelper _helper = config.sqliteOpenHelperFactory.create(_sqliteConfig);
     return _helper;

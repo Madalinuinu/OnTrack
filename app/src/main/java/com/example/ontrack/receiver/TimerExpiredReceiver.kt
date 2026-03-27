@@ -39,7 +39,12 @@ class TimerExpiredReceiver : BroadcastReceiver() {
                 val app = context.applicationContext as? OnTrackApplication ?: return@withContext
                 val todayEpoch = EffectiveDate.todayEpoch()
                 val durationMinutes = totalSeconds / 60
-                app.database.habitLogDao().completeWithDuration(habitId, todayEpoch, durationMinutes)
+                app.database.habitLogDao().completeWithDuration(
+                    habitId,
+                    todayEpoch,
+                    durationMinutes,
+                    durationSeconds = totalSeconds
+                )
                 app.streakManager.refreshStreak(systemId)
                 val systemIds = app.database.systemDao().getAllSystems().first().filter { !it.isTestData }.map { it.id }
                 app.streakManager.refreshGlobalStreak(systemIds)

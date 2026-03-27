@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import com.example.ontrack.data.local.entity.HabitLogEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -16,17 +17,8 @@ interface HabitLogDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(log: HabitLogEntity)
 
-    @Query(
-        "UPDATE habit_logs SET isCompleted = :completed, durationMinutes = :durationMinutes, isOngoing = :ongoing " +
-            "WHERE habitId = :habitId AND date = :date"
-    )
-    suspend fun updateCompletionState(
-        habitId: Long,
-        date: Long,
-        completed: Boolean,
-        durationMinutes: Int?,
-        ongoing: Boolean
-    )
+    @Update
+    suspend fun update(log: HabitLogEntity)
 
     @Query("SELECT * FROM habit_logs WHERE habitId = :habitId AND date = :date LIMIT 1")
     suspend fun getLog(habitId: Long, date: Long): HabitLogEntity?
@@ -44,23 +36,52 @@ interface HabitLogDao {
         val existing = getLog(habitId, date)
         if (existing != null) {
             val newCompleted = !existing.isCompleted
-            updateCompletionState(
-                habitId,
-                date,
-                newCompleted,
-                existing.durationMinutes,
-                ongoing = false
+            update(
+                existing.copy(
+                    isCompleted = newCompleted,
+                    isOngoing = false,
+                    ongoingStartedAtMillis = null,
+                    durationMinutes = if (newCompleted) existing.durationMinutes else null,
+                    sessionDurationSeconds = if (newCompleted) existing.sessionDurationSeconds else null
+                )
             )
         } else {
-            insert(HabitLogEntity(habitId = habitId, date = date, isCompleted = true, isOngoing = false))
+            insert(
+                HabitLogEntity(
+                    habitId = habitId,
+                    date = date,
+                    isCompleted = true,
+                    isOngoing = false
+                )
+            )
         }
     }
 
-    /** Mark habit completed for date with optional duration (e.g. from timer). */
-    suspend fun completeWithDuration(habitId: Long, date: Long, durationMinutes: Int?) {
+    /**
+     * Mark completed with optional minute display and/or exact seconds (timer uses [durationSeconds]).
+     */
+    suspend fun completeWithDuration(
+        habitId: Long,
+        date: Long,
+        durationMinutes: Int?,
+        durationSeconds: Int? = null
+    ) {
         val existing = getLog(habitId, date)
+        val sessionSec: Int? = when {
+            durationSeconds != null && durationSeconds > 0 -> durationSeconds
+            durationMinutes != null && durationMinutes > 0 -> durationMinutes * 60
+            else -> null
+        }
         if (existing != null) {
-            updateCompletionState(habitId, date, true, durationMinutes, ongoing = false)
+            update(
+                existing.copy(
+                    isCompleted = true,
+                    isOngoing = false,
+                    ongoingStartedAtMillis = null,
+                    durationMinutes = durationMinutes,
+                    sessionDurationSeconds = sessionSec
+                )
+            )
         } else {
             insert(
                 HabitLogEntity(
@@ -68,23 +89,24 @@ interface HabitLogDao {
                     date = date,
                     isCompleted = true,
                     isOngoing = false,
-                    durationMinutes = durationMinutes
+                    durationMinutes = durationMinutes,
+                    sessionDurationSeconds = sessionSec
                 )
             )
         }
     }
 
-    /** First tap on Today: not completed, ongoing flag set. */
+    /** First tap on Today: not completed, ongoing flag set; start timestamp for session length. */
     suspend fun markOngoing(habitId: Long, date: Long) {
         val existing = getLog(habitId, date)
+        val now = System.currentTimeMillis()
         if (existing != null) {
             if (existing.isCompleted) return
-            updateCompletionState(
-                habitId,
-                date,
-                completed = false,
-                durationMinutes = existing.durationMinutes,
-                ongoing = true
+            update(
+                existing.copy(
+                    isOngoing = true,
+                    ongoingStartedAtMillis = now
+                )
             )
         } else {
             insert(
@@ -92,22 +114,30 @@ interface HabitLogDao {
                     habitId = habitId,
                     date = date,
                     isCompleted = false,
-                    isOngoing = true
+                    isOngoing = true,
+                    ongoingStartedAtMillis = now
                 )
             )
         }
     }
 
-    /** Second tap, notification action, etc.: mark done and clear ongoing. */
+    /** Second tap, notification action, etc.: mark done and store start→done seconds. */
     suspend fun completeOngoingAsDone(habitId: Long, date: Long) {
         val existing = getLog(habitId, date) ?: return
         if (existing.isCompleted) return
-        updateCompletionState(
-            habitId,
-            date,
-            completed = true,
-            durationMinutes = existing.durationMinutes,
-            ongoing = false
+        val start = existing.ongoingStartedAtMillis
+        val sessionSec: Int? = if (start != null) {
+            ((System.currentTimeMillis() - start) / 1000L).toInt().coerceIn(0, Int.MAX_VALUE)
+        } else {
+            null
+        }
+        update(
+            existing.copy(
+                isCompleted = true,
+                isOngoing = false,
+                ongoingStartedAtMillis = null,
+                sessionDurationSeconds = sessionSec?.takeIf { it > 0 }
+            )
         )
     }
 }

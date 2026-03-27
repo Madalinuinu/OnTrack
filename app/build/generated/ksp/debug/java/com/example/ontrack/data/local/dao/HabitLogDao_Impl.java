@@ -5,6 +5,7 @@ import android.os.CancellationSignal;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.room.CoroutinesRoom;
+import androidx.room.EntityDeletionOrUpdateAdapter;
 import androidx.room.EntityInsertionAdapter;
 import androidx.room.RoomDatabase;
 import androidx.room.RoomSQLiteQuery;
@@ -39,7 +40,7 @@ public final class HabitLogDao_Impl implements HabitLogDao {
 
   private final EntityInsertionAdapter<HabitLogEntity> __insertionAdapterOfHabitLogEntity;
 
-  private final SharedSQLiteStatement __preparedStmtOfUpdateCompletionState;
+  private final EntityDeletionOrUpdateAdapter<HabitLogEntity> __updateAdapterOfHabitLogEntity;
 
   private final SharedSQLiteStatement __preparedStmtOfClearAllLogs;
 
@@ -49,7 +50,7 @@ public final class HabitLogDao_Impl implements HabitLogDao {
       @Override
       @NonNull
       protected String createQuery() {
-        return "INSERT OR REPLACE INTO `habit_logs` (`id`,`habitId`,`date`,`isCompleted`,`isOngoing`,`durationMinutes`) VALUES (nullif(?, 0),?,?,?,?,?)";
+        return "INSERT OR REPLACE INTO `habit_logs` (`id`,`habitId`,`date`,`isCompleted`,`isOngoing`,`durationMinutes`,`ongoingStartedAtMillis`,`sessionDurationSeconds`) VALUES (nullif(?, 0),?,?,?,?,?,?,?)";
       }
 
       @Override
@@ -67,14 +68,51 @@ public final class HabitLogDao_Impl implements HabitLogDao {
         } else {
           statement.bindLong(6, entity.getDurationMinutes());
         }
+        if (entity.getOngoingStartedAtMillis() == null) {
+          statement.bindNull(7);
+        } else {
+          statement.bindLong(7, entity.getOngoingStartedAtMillis());
+        }
+        if (entity.getSessionDurationSeconds() == null) {
+          statement.bindNull(8);
+        } else {
+          statement.bindLong(8, entity.getSessionDurationSeconds());
+        }
       }
     };
-    this.__preparedStmtOfUpdateCompletionState = new SharedSQLiteStatement(__db) {
+    this.__updateAdapterOfHabitLogEntity = new EntityDeletionOrUpdateAdapter<HabitLogEntity>(__db) {
       @Override
       @NonNull
-      public String createQuery() {
-        final String _query = "UPDATE habit_logs SET isCompleted = ?, durationMinutes = ?, isOngoing = ? WHERE habitId = ? AND date = ?";
-        return _query;
+      protected String createQuery() {
+        return "UPDATE OR ABORT `habit_logs` SET `id` = ?,`habitId` = ?,`date` = ?,`isCompleted` = ?,`isOngoing` = ?,`durationMinutes` = ?,`ongoingStartedAtMillis` = ?,`sessionDurationSeconds` = ? WHERE `id` = ?";
+      }
+
+      @Override
+      protected void bind(@NonNull final SupportSQLiteStatement statement,
+          @NonNull final HabitLogEntity entity) {
+        statement.bindLong(1, entity.getId());
+        statement.bindLong(2, entity.getHabitId());
+        statement.bindLong(3, entity.getDate());
+        final int _tmp = entity.isCompleted() ? 1 : 0;
+        statement.bindLong(4, _tmp);
+        final int _tmp_1 = entity.isOngoing() ? 1 : 0;
+        statement.bindLong(5, _tmp_1);
+        if (entity.getDurationMinutes() == null) {
+          statement.bindNull(6);
+        } else {
+          statement.bindLong(6, entity.getDurationMinutes());
+        }
+        if (entity.getOngoingStartedAtMillis() == null) {
+          statement.bindNull(7);
+        } else {
+          statement.bindLong(7, entity.getOngoingStartedAtMillis());
+        }
+        if (entity.getSessionDurationSeconds() == null) {
+          statement.bindNull(8);
+        } else {
+          statement.bindLong(8, entity.getSessionDurationSeconds());
+        }
+        statement.bindLong(9, entity.getId());
       }
     };
     this.__preparedStmtOfClearAllLogs = new SharedSQLiteStatement(__db) {
@@ -106,41 +144,18 @@ public final class HabitLogDao_Impl implements HabitLogDao {
   }
 
   @Override
-  public Object updateCompletionState(final long habitId, final long date, final boolean completed,
-      final Integer durationMinutes, final boolean ongoing,
-      final Continuation<? super Unit> $completion) {
+  public Object update(final HabitLogEntity log, final Continuation<? super Unit> $completion) {
     return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
       @Override
       @NonNull
       public Unit call() throws Exception {
-        final SupportSQLiteStatement _stmt = __preparedStmtOfUpdateCompletionState.acquire();
-        int _argIndex = 1;
-        final int _tmp = completed ? 1 : 0;
-        _stmt.bindLong(_argIndex, _tmp);
-        _argIndex = 2;
-        if (durationMinutes == null) {
-          _stmt.bindNull(_argIndex);
-        } else {
-          _stmt.bindLong(_argIndex, durationMinutes);
-        }
-        _argIndex = 3;
-        final int _tmp_1 = ongoing ? 1 : 0;
-        _stmt.bindLong(_argIndex, _tmp_1);
-        _argIndex = 4;
-        _stmt.bindLong(_argIndex, habitId);
-        _argIndex = 5;
-        _stmt.bindLong(_argIndex, date);
+        __db.beginTransaction();
         try {
-          __db.beginTransaction();
-          try {
-            _stmt.executeUpdateDelete();
-            __db.setTransactionSuccessful();
-            return Unit.INSTANCE;
-          } finally {
-            __db.endTransaction();
-          }
+          __updateAdapterOfHabitLogEntity.handle(log);
+          __db.setTransactionSuccessful();
+          return Unit.INSTANCE;
         } finally {
-          __preparedStmtOfUpdateCompletionState.release(_stmt);
+          __db.endTransaction();
         }
       }
     }, $completion);
@@ -190,6 +205,8 @@ public final class HabitLogDao_Impl implements HabitLogDao {
           final int _cursorIndexOfIsCompleted = CursorUtil.getColumnIndexOrThrow(_cursor, "isCompleted");
           final int _cursorIndexOfIsOngoing = CursorUtil.getColumnIndexOrThrow(_cursor, "isOngoing");
           final int _cursorIndexOfDurationMinutes = CursorUtil.getColumnIndexOrThrow(_cursor, "durationMinutes");
+          final int _cursorIndexOfOngoingStartedAtMillis = CursorUtil.getColumnIndexOrThrow(_cursor, "ongoingStartedAtMillis");
+          final int _cursorIndexOfSessionDurationSeconds = CursorUtil.getColumnIndexOrThrow(_cursor, "sessionDurationSeconds");
           final List<HabitLogEntity> _result = new ArrayList<HabitLogEntity>(_cursor.getCount());
           while (_cursor.moveToNext()) {
             final HabitLogEntity _item;
@@ -213,7 +230,19 @@ public final class HabitLogDao_Impl implements HabitLogDao {
             } else {
               _tmpDurationMinutes = _cursor.getInt(_cursorIndexOfDurationMinutes);
             }
-            _item = new HabitLogEntity(_tmpId,_tmpHabitId,_tmpDate,_tmpIsCompleted,_tmpIsOngoing,_tmpDurationMinutes);
+            final Long _tmpOngoingStartedAtMillis;
+            if (_cursor.isNull(_cursorIndexOfOngoingStartedAtMillis)) {
+              _tmpOngoingStartedAtMillis = null;
+            } else {
+              _tmpOngoingStartedAtMillis = _cursor.getLong(_cursorIndexOfOngoingStartedAtMillis);
+            }
+            final Integer _tmpSessionDurationSeconds;
+            if (_cursor.isNull(_cursorIndexOfSessionDurationSeconds)) {
+              _tmpSessionDurationSeconds = null;
+            } else {
+              _tmpSessionDurationSeconds = _cursor.getInt(_cursorIndexOfSessionDurationSeconds);
+            }
+            _item = new HabitLogEntity(_tmpId,_tmpHabitId,_tmpDate,_tmpIsCompleted,_tmpIsOngoing,_tmpDurationMinutes,_tmpOngoingStartedAtMillis,_tmpSessionDurationSeconds);
             _result.add(_item);
           }
           return _result;
@@ -251,6 +280,8 @@ public final class HabitLogDao_Impl implements HabitLogDao {
           final int _cursorIndexOfIsCompleted = CursorUtil.getColumnIndexOrThrow(_cursor, "isCompleted");
           final int _cursorIndexOfIsOngoing = CursorUtil.getColumnIndexOrThrow(_cursor, "isOngoing");
           final int _cursorIndexOfDurationMinutes = CursorUtil.getColumnIndexOrThrow(_cursor, "durationMinutes");
+          final int _cursorIndexOfOngoingStartedAtMillis = CursorUtil.getColumnIndexOrThrow(_cursor, "ongoingStartedAtMillis");
+          final int _cursorIndexOfSessionDurationSeconds = CursorUtil.getColumnIndexOrThrow(_cursor, "sessionDurationSeconds");
           final HabitLogEntity _result;
           if (_cursor.moveToFirst()) {
             final long _tmpId;
@@ -273,7 +304,19 @@ public final class HabitLogDao_Impl implements HabitLogDao {
             } else {
               _tmpDurationMinutes = _cursor.getInt(_cursorIndexOfDurationMinutes);
             }
-            _result = new HabitLogEntity(_tmpId,_tmpHabitId,_tmpDate,_tmpIsCompleted,_tmpIsOngoing,_tmpDurationMinutes);
+            final Long _tmpOngoingStartedAtMillis;
+            if (_cursor.isNull(_cursorIndexOfOngoingStartedAtMillis)) {
+              _tmpOngoingStartedAtMillis = null;
+            } else {
+              _tmpOngoingStartedAtMillis = _cursor.getLong(_cursorIndexOfOngoingStartedAtMillis);
+            }
+            final Integer _tmpSessionDurationSeconds;
+            if (_cursor.isNull(_cursorIndexOfSessionDurationSeconds)) {
+              _tmpSessionDurationSeconds = null;
+            } else {
+              _tmpSessionDurationSeconds = _cursor.getInt(_cursorIndexOfSessionDurationSeconds);
+            }
+            _result = new HabitLogEntity(_tmpId,_tmpHabitId,_tmpDate,_tmpIsCompleted,_tmpIsOngoing,_tmpDurationMinutes,_tmpOngoingStartedAtMillis,_tmpSessionDurationSeconds);
           } else {
             _result = null;
           }
@@ -306,6 +349,8 @@ public final class HabitLogDao_Impl implements HabitLogDao {
           final int _cursorIndexOfIsCompleted = CursorUtil.getColumnIndexOrThrow(_cursor, "isCompleted");
           final int _cursorIndexOfIsOngoing = CursorUtil.getColumnIndexOrThrow(_cursor, "isOngoing");
           final int _cursorIndexOfDurationMinutes = CursorUtil.getColumnIndexOrThrow(_cursor, "durationMinutes");
+          final int _cursorIndexOfOngoingStartedAtMillis = CursorUtil.getColumnIndexOrThrow(_cursor, "ongoingStartedAtMillis");
+          final int _cursorIndexOfSessionDurationSeconds = CursorUtil.getColumnIndexOrThrow(_cursor, "sessionDurationSeconds");
           final List<HabitLogEntity> _result = new ArrayList<HabitLogEntity>(_cursor.getCount());
           while (_cursor.moveToNext()) {
             final HabitLogEntity _item;
@@ -329,7 +374,19 @@ public final class HabitLogDao_Impl implements HabitLogDao {
             } else {
               _tmpDurationMinutes = _cursor.getInt(_cursorIndexOfDurationMinutes);
             }
-            _item = new HabitLogEntity(_tmpId,_tmpHabitId,_tmpDate,_tmpIsCompleted,_tmpIsOngoing,_tmpDurationMinutes);
+            final Long _tmpOngoingStartedAtMillis;
+            if (_cursor.isNull(_cursorIndexOfOngoingStartedAtMillis)) {
+              _tmpOngoingStartedAtMillis = null;
+            } else {
+              _tmpOngoingStartedAtMillis = _cursor.getLong(_cursorIndexOfOngoingStartedAtMillis);
+            }
+            final Integer _tmpSessionDurationSeconds;
+            if (_cursor.isNull(_cursorIndexOfSessionDurationSeconds)) {
+              _tmpSessionDurationSeconds = null;
+            } else {
+              _tmpSessionDurationSeconds = _cursor.getInt(_cursorIndexOfSessionDurationSeconds);
+            }
+            _item = new HabitLogEntity(_tmpId,_tmpHabitId,_tmpDate,_tmpIsCompleted,_tmpIsOngoing,_tmpDurationMinutes,_tmpOngoingStartedAtMillis,_tmpSessionDurationSeconds);
             _result.add(_item);
           }
           return _result;
@@ -380,8 +437,9 @@ public final class HabitLogDao_Impl implements HabitLogDao {
 
   @Override
   public Object completeWithDuration(final long habitId, final long date,
-      final Integer durationMinutes, final Continuation<? super Unit> $completion) {
-    return HabitLogDao.DefaultImpls.completeWithDuration(HabitLogDao_Impl.this, habitId, date, durationMinutes, $completion);
+      final Integer durationMinutes, final Integer durationSeconds,
+      final Continuation<? super Unit> $completion) {
+    return HabitLogDao.DefaultImpls.completeWithDuration(HabitLogDao_Impl.this, habitId, date, durationMinutes, durationSeconds, $completion);
   }
 
   @Override

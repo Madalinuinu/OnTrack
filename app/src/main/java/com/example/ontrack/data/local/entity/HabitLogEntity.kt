@@ -27,5 +27,9 @@ data class HabitLogEntity(
     /** User started the task from Today (first tap); cleared when marked done. */
     val isOngoing: Boolean = false,
     /** Time spent in minutes (e.g. from timer); null if not tracked. */
-    val durationMinutes: Int? = null
+    val durationMinutes: Int? = null,
+    /** Wall-clock start when user tapped Start on Today; cleared when done. */
+    val ongoingStartedAtMillis: Long? = null,
+    /** Seconds from Today start→done or exact timer length; summed in stats. */
+    val sessionDurationSeconds: Int? = null
 )
