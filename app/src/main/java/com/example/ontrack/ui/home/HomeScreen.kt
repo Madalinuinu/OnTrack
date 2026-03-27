@@ -159,8 +159,14 @@ fun HomeScreen(
     LaunchedEffect(todayTimerFinished, soundEnabled, notificationsEnabled) {
         if (todayTimerFinished != null) {
             val finished = todayTimerFinished!!
-            if (soundEnabled) playTimerFinishedSound(context)
-            if (notificationsEnabled) showTimerFinishedNotification(context, finished.habitTitle)
+            if (notificationsEnabled) {
+                if (soundEnabled) playTimerFinishedSound(context)
+                showTimerFinishedNotification(
+                    context = context,
+                    habitTitle = finished.habitTitle,
+                    soundEnabled = soundEnabled
+                )
+            }
             viewModel.clearTodayTimerFinished()
         }
     }
@@ -491,11 +497,16 @@ Text(
                         )
                         Switch(
                             checked = soundEnabled,
-                            onCheckedChange = onSoundEnabledChange
+                            onCheckedChange = onSoundEnabledChange,
+                            enabled = notificationsEnabled
                         )
                     }
                     Text(
-                        text = "Play sound when timer ends",
+                        text = if (notificationsEnabled) {
+                            "Play sound and vibration when timer ends"
+                        } else {
+                            "Enable notifications first to use sound and vibration"
+                        },
                         style = MaterialTheme.typography.bodySmall,
                         color = Color.Gray,
                         modifier = Modifier.padding(horizontal = 16.dp, vertical = 0.dp)

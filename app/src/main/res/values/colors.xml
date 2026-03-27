@@ -27,4 +27,7 @@
     <color name="serene_text_secondary">#E0E7FF</color>
     <color name="serene_button_background">#F0F0F0</color>
     <color name="serene_button_text">#333333</color>
+    <!-- Onboarding redesign (matches splash serene palette) -->
+    <color name="ob_gradient_start">#8C9EFF</color>
+    <color name="ob_button_text">#3D4EA8</color>
 </resources>

@@ -14,6 +14,7 @@ import com.example.ontrack.receiver.OngoingTaskReceiver
 const val EXTRA_SCROLL_TO_TODAY = "scroll_to_today"
 
 private const val CHANNEL_ID = "ontrack_ongoing_task"
+private const val CHANNEL_ID_SILENT = "ontrack_ongoing_task_silent"
 private const val REQ_CONTENT = 3000
 private const val REQ_FINISH = 4000
 private const val REQ_OPEN = 5000
@@ -38,16 +39,22 @@ fun showOngoingTaskNotification(
     habitId: Long,
     systemId: Long,
     habitTitle: String,
-    dateEpoch: Long
+    dateEpoch: Long,
+    soundEnabled: Boolean
 ) {
+    val channelId = if (soundEnabled) CHANNEL_ID else CHANNEL_ID_SILENT
     val channel = NotificationChannel(
-        CHANNEL_ID,
+        channelId,
         "Ongoing tasks",
         NotificationManager.IMPORTANCE_HIGH
     ).apply {
         setShowBadge(true)
-        enableVibration(true)
-        setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION), null)
+        enableVibration(soundEnabled)
+        if (soundEnabled) {
+            setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION), null)
+        } else {
+            setSound(null, null)
+        }
     }
     (context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)
         .createNotificationChannel(channel)
@@ -75,7 +82,7 @@ fun showOngoingTaskNotification(
     val text =
         "This task \"$habitTitle\" is ongoing. Tap to open in app."
 
-    val notification = NotificationCompat.Builder(context, CHANNEL_ID)
+    val notification = NotificationCompat.Builder(context, channelId)
         .setSmallIcon(android.R.drawable.ic_popup_reminder)
         .setContentTitle("Ongoing")
         .setContentText(text)
@@ -88,7 +95,10 @@ fun showOngoingTaskNotification(
         .setContentIntent(contentPi)
         .addAction(0, "Mark as finished", finishPi)
         .addAction(0, "Open in app", openPi)
-        .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
+        .setSilent(!soundEnabled)
+        .setSound(
+            if (soundEnabled) RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION) else null
+        )
         .build()
 
     try {

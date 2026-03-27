@@ -11,6 +11,7 @@ import androidx.core.app.NotificationManagerCompat
 import com.example.ontrack.MainActivity
 
 private const val CHANNEL_ID = "ontrack_timer_finished"
+private const val CHANNEL_ID_SILENT = "ontrack_timer_finished_silent"
 private const val NOTIFICATION_ID = 1001
 
 /**
@@ -18,18 +19,27 @@ private const val NOTIFICATION_ID = 1001
  * Uses default notification sound so the user hears an alert.
  * Tapping the notification opens the app (MainActivity).
  */
-fun showTimerFinishedNotification(context: Context, habitTitle: String) {
+fun showTimerFinishedNotification(
+    context: Context,
+    habitTitle: String,
+    soundEnabled: Boolean
+) {
+    val channelId = if (soundEnabled) CHANNEL_ID else CHANNEL_ID_SILENT
     val channel = NotificationChannel(
-        CHANNEL_ID,
+        channelId,
         "Timer",
         NotificationManager.IMPORTANCE_HIGH
     ).apply {
         setShowBadge(true)
-        enableVibration(true)
-        setSound(
-            RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION),
-            null
-        )
+        enableVibration(soundEnabled)
+        if (soundEnabled) {
+            setSound(
+                RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION),
+                null
+            )
+        } else {
+            setSound(null, null)
+        }
     }
     (context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)
         .createNotificationChannel(channel)
@@ -44,14 +54,17 @@ fun showTimerFinishedNotification(context: Context, habitTitle: String) {
         PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
     )
 
-    val notification = NotificationCompat.Builder(context, CHANNEL_ID)
+    val notification = NotificationCompat.Builder(context, channelId)
         .setSmallIcon(android.R.drawable.ic_popup_reminder)
         .setContentTitle("Time's up")
         .setContentText("Task completed: $habitTitle")
         .setPriority(NotificationCompat.PRIORITY_HIGH)
         .setAutoCancel(true)
         .setContentIntent(pendingIntent)
-        .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
+        .setSilent(!soundEnabled)
+        .setSound(
+            if (soundEnabled) RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION) else null
+        )
         .build()
     try {
         NotificationManagerCompat.from(context).notify(NOTIFICATION_ID, notification)

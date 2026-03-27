@@ -179,8 +179,12 @@ class TimerForegroundService : Service() {
         cancelAlarm()
         TimerStateHolder.clear()
         serviceScope.launch {
+            var notificationsEnabled = true
+            var soundEnabled = true
             withContext(Dispatchers.IO) {
                 val app = application as? OnTrackApplication ?: return@withContext
+                notificationsEnabled = app.userPreferences.notificationsEnabled.first()
+                soundEnabled = app.userPreferences.soundEnabled.first()
                 val todayEpoch = EffectiveDate.todayEpoch()
                 val durationMinutes = totalSeconds / 60
                 app.database.habitLogDao().completeWithDuration(
@@ -193,14 +197,16 @@ class TimerForegroundService : Service() {
                 val systemIds = app.database.systemDao().getAllSystems().first().filter { !it.isTestData }.map { it.id }
                 app.streakManager.refreshGlobalStreak(systemIds)
             }
-            showTimerFinishedNotification()
+            if (notificationsEnabled) {
+                showTimerFinishedNotification(soundEnabled)
+            }
             stopForeground(STOP_FOREGROUND_REMOVE)
             stopSelf()
         }
     }
 
-    private fun showTimerFinishedNotification() {
-        com.example.ontrack.util.showTimerFinishedNotification(this, habitTitle)
+    private fun showTimerFinishedNotification(soundEnabled: Boolean) {
+        com.example.ontrack.util.showTimerFinishedNotification(this, habitTitle, soundEnabled)
     }
 
     private fun cancelAlarm() {

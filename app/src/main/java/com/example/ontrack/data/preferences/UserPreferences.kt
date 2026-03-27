@@ -242,12 +242,18 @@ class UserPreferences(context: Context) {
     suspend fun setNotificationsEnabled(enabled: Boolean) {
         dataStore.edit { prefs ->
             prefs[Keys.NOTIFICATIONS_ENABLED] = enabled
+            if (!enabled) {
+                // When notifications are off, sound must also be off.
+                prefs[Keys.SOUND_ENABLED] = false
+            }
         }
     }
 
     suspend fun setSoundEnabled(enabled: Boolean) {
         dataStore.edit { prefs ->
-            prefs[Keys.SOUND_ENABLED] = enabled
+            val notificationsEnabled = prefs[Keys.NOTIFICATIONS_ENABLED] ?: true
+            // Sound cannot be enabled while notifications are disabled.
+            prefs[Keys.SOUND_ENABLED] = enabled && notificationsEnabled
         }
     }
 

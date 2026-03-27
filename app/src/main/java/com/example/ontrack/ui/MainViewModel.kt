@@ -23,6 +23,12 @@ class MainViewModel(
     val initialPageToUse: StateFlow<Int?> = _initialPageToUse.asStateFlow()
 
     init {
+        viewModelScope.launch {
+            // Keep stored preferences consistent with settings rules.
+            if (!userPreferences.notificationsEnabled.first()) {
+                userPreferences.setSoundEnabled(false)
+            }
+        }
         if (initialPageFromIntent == 0) {
             viewModelScope.launch {
                 val systems = systemDao.getAllSystems().first()

@@ -14,6 +14,8 @@ class BootReceiver : BroadcastReceiver() {
         if (intent.action != Intent.ACTION_BOOT_COMPLETED) return
         val app = context.applicationContext as? OnTrackApplication ?: return
         runBlocking {
+            val notificationsEnabled = app.userPreferences.notificationsEnabled.first()
+            if (!notificationsEnabled) return@runBlocking
             val bedtime = app.userPreferences.sleepBedtimeMinutes.first()
             val wake = app.userPreferences.sleepWakeMinutes.first()
             if (bedtime >= 0 && wake >= 0) {

@@ -74,8 +74,14 @@ fun TrackerScreen(
     LaunchedEffect(timerFinished, soundEnabled, notificationsEnabled) {
         if (timerFinished != null) {
             val finished = timerFinished!!
-            if (soundEnabled) playTimerFinishedSound(context)
-            if (notificationsEnabled) showTimerFinishedNotification(context, finished.habitTitle)
+            if (notificationsEnabled) {
+                if (soundEnabled) playTimerFinishedSound(context)
+                showTimerFinishedNotification(
+                    context = context,
+                    habitTitle = finished.habitTitle,
+                    soundEnabled = soundEnabled
+                )
+            }
             viewModel.clearTimerFinished()
         }
     }

@@ -1,12 +1,16 @@
 package com.example.ontrack
 
+import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.View
+import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.DecelerateInterpolator
+import android.view.animation.OvershootInterpolator
 import android.widget.Button
-import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
@@ -23,6 +27,8 @@ class OnboardingSecondActivity : AppCompatActivity() {
     private lateinit var welcomeSubtext: TextView
     private lateinit var taglineText: TextView
     private lateinit var continueButton: Button
+
+    private var pulseAnim: AnimatorSet? = null
     private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -30,27 +36,21 @@ class OnboardingSecondActivity : AppCompatActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
         setContentView(R.layout.activity_onboarding_2nd)
 
-        welcomeText = findViewById(R.id.welcome_text)
+        welcomeText    = findViewById(R.id.welcome_text)
         welcomeSubtext = findViewById(R.id.welcome_subtext)
-        taglineText = findViewById(R.id.tagline_text)
+        taglineText    = findViewById(R.id.tagline_text)
         continueButton = findViewById(R.id.continue_button)
 
-        // Setăm numele salvat după "Hi, Welcome"
-        val application = application as OnTrackApplication
         scope.launch {
-            val name = application.userPreferences.userName.first()
-            if (name.isNotBlank()) {
-                welcomeText.text = "Hi, welcome $name"
-            } else {
-                welcomeText.text = "Hi, welcome"
-            }
+            val name = (application as OnTrackApplication).userPreferences.userName.first()
+            welcomeText.text = if (name.isNotBlank()) "Hi, welcome $name" else "Hi, welcome"
         }
 
-        animateTextIn()
+        playEntrance()
 
         continueButton.setOnClickListener {
-            val intent = Intent(this@OnboardingSecondActivity, MainActivity::class.java)
-            startActivity(intent)
+            pulseAnim?.cancel()
+            startActivity(Intent(this@OnboardingSecondActivity, MainActivity::class.java))
             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
             finish()
         }
@@ -58,38 +58,87 @@ class OnboardingSecondActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+        pulseAnim?.cancel()
         scope.cancel()
     }
 
-    private fun animateTextIn() {
-        welcomeText.alpha = 0f
-        welcomeText.translationY = 30f
-        welcomeSubtext.alpha = 0f
-        welcomeSubtext.translationY = 30f
-        taglineText.alpha = 0f
-        taglineText.translationY = 30f
-        continueButton.alpha = 0f
-        continueButton.translationY = 30f
+    // ─── Entrance ─────────────────────────────────────────────────────────────
 
-        android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
-            animateView(welcomeText, 0)
-            animateView(welcomeSubtext, 100)
-            animateView(taglineText, 200)
-            animateView(continueButton, 300)
-        }, 300)
+    private fun playEntrance() {
+        listOf(welcomeText, welcomeSubtext, taglineText).forEach {
+            it.alpha = 0f
+            it.translationY = 64f
+            it.scaleX = 0.92f
+            it.scaleY = 0.92f
+        }
+        continueButton.alpha = 0f
+        continueButton.translationY = 56f
+        continueButton.scaleX = 0.82f
+        continueButton.scaleY = 0.82f
+
+        val h = Handler(Looper.getMainLooper())
+        h.postDelayed({ animateText(welcomeText) },      200)
+        h.postDelayed({ animateText(welcomeSubtext) },   390)
+        h.postDelayed({ animateText(taglineText) },      560)
+        h.postDelayed({ animateButtonIn() },             760)
+        h.postDelayed({ startButtonPulse() },           1700)
     }
 
-    private fun animateView(view: View, delay: Long) {
-        android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
-            val fadeIn = ObjectAnimator.ofFloat(view, View.ALPHA, 0f, 1f)
-            val translateY = ObjectAnimator.ofFloat(view, View.TRANSLATION_Y, 30f, 0f)
-            fadeIn.duration = 500
-            translateY.duration = 500
-            fadeIn.interpolator = DecelerateInterpolator()
-            translateY.interpolator = DecelerateInterpolator()
-            fadeIn.start()
-            translateY.start()
-        }, delay)
+    private fun animateText(view: View) {
+        val interp = DecelerateInterpolator(1.6f)
+        AnimatorSet().apply {
+            playTogether(
+                anim(view, View.ALPHA,         0f,           1f,   620, interp),
+                anim(view, View.TRANSLATION_Y, view.translationY, 0f, 620, interp),
+                anim(view, View.SCALE_X,       view.scaleX,  1f,   620, interp),
+                anim(view, View.SCALE_Y,       view.scaleY,  1f,   620, interp)
+            )
+            start()
+        }
+    }
+
+    private fun animateButtonIn() {
+        val spring = OvershootInterpolator(2.4f)
+        val decel  = DecelerateInterpolator(1.2f)
+        AnimatorSet().apply {
+            playTogether(
+                anim(continueButton, View.ALPHA,         0f,    1f,  700, decel),
+                anim(continueButton, View.TRANSLATION_Y, 56f,   0f,  700, decel),
+                anim(continueButton, View.SCALE_X,       0.82f, 1f,  750, spring),
+                anim(continueButton, View.SCALE_Y,       0.82f, 1f,  750, spring)
+            )
+            start()
+        }
+    }
+
+    private fun startButtonPulse() {
+        val breathe = AccelerateDecelerateInterpolator()
+        val px = ObjectAnimator.ofFloat(continueButton, View.SCALE_X, 1f, 1.025f).apply {
+            duration     = 1100
+            repeatCount  = ObjectAnimator.INFINITE
+            repeatMode   = ObjectAnimator.REVERSE
+            interpolator = breathe
+        }
+        val py = ObjectAnimator.ofFloat(continueButton, View.SCALE_Y, 1f, 1.025f).apply {
+            duration     = 1100
+            repeatCount  = ObjectAnimator.INFINITE
+            repeatMode   = ObjectAnimator.REVERSE
+            interpolator = breathe
+        }
+        pulseAnim = AnimatorSet().also { it.playTogether(px, py); it.start() }
+    }
+
+    // ─── Helper ───────────────────────────────────────────────────────────────
+
+    private fun anim(
+        view: View,
+        property: android.util.Property<View, Float>,
+        from: Float,
+        to: Float,
+        duration: Long,
+        interpolator: android.view.animation.Interpolator
+    ) = ObjectAnimator.ofFloat(view, property, from, to).apply {
+        this.duration     = duration
+        this.interpolator = interpolator
     }
 }
-

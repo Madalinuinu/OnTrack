@@ -35,8 +35,12 @@ class TimerExpiredReceiver : BroadcastReceiver() {
         val pendingResult = goAsync()
         val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
         scope.launch {
+            var notificationsEnabled = true
+            var soundEnabled = true
             withContext(Dispatchers.IO) {
                 val app = context.applicationContext as? OnTrackApplication ?: return@withContext
+                notificationsEnabled = app.userPreferences.notificationsEnabled.first()
+                soundEnabled = app.userPreferences.soundEnabled.first()
                 val todayEpoch = EffectiveDate.todayEpoch()
                 val durationMinutes = totalSeconds / 60
                 app.database.habitLogDao().completeWithDuration(
@@ -49,7 +53,9 @@ class TimerExpiredReceiver : BroadcastReceiver() {
                 val systemIds = app.database.systemDao().getAllSystems().first().filter { !it.isTestData }.map { it.id }
                 app.streakManager.refreshGlobalStreak(systemIds)
             }
-            showTimerFinishedNotification(context, habitTitle)
+            if (notificationsEnabled) {
+                showTimerFinishedNotification(context, habitTitle, soundEnabled)
+            }
             pendingResult.finish()
             scope.cancel()
         }

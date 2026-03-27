@@ -384,12 +384,14 @@ viewModelScope.launch {
             }
             habitLogDao.markOngoing(habitId, dateEpoch)
             if (userPreferences.notificationsEnabled.first()) {
+                val soundEnabled = userPreferences.soundEnabled.first()
                 showOngoingTaskNotification(
                     application,
                     habitId,
                     systemId,
                     habitTitle,
-                    dateEpoch
+                    dateEpoch,
+                    soundEnabled
                 )
             }
         }
