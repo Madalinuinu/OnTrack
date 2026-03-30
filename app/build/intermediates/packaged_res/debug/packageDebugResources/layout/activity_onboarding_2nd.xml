@@ -14,48 +14,40 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!--
-        Guideline la 88% de sus = butonul sta mereu la ~12% de la baza,
-        proportional pe orice dimensiune de telefon.
-    -->
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/gl_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.82" />
+        app:layout_constraintGuide_percent="0.84" />
 
-    <!--
-        Titlul la 36% din inaltimea ecranului, proportional.
-    -->
     <TextView
         android:id="@+id/welcome_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:fontFamily="sans-serif-medium"
+        android:fontFamily="sans-serif"
         android:gravity="center"
         android:text="Hi, welcome"
-        android:textColor="#FFFFFFFF"
-        android:textSize="36sp"
+        android:textColor="@color/serene_text_primary"
+        android:textSize="34sp"
         android:textStyle="bold"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toTopOf="@id/gl_button"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintVertical_bias="0.24" />
+        app:layout_constraintVertical_bias="0.26" />
 
     <TextView
         android:id="@+id/welcome_subtext"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
+        android:layout_marginTop="10dp"
         android:fontFamily="sans-serif"
         android:gravity="center"
-        android:letterSpacing="0.03"
+        android:letterSpacing="0.01"
         android:text="to the app"
-        android:textColor="#E8EDFF"
-        android:textSize="21sp"
-        android:textStyle="italic"
+        android:textColor="@color/serene_text_secondary"
+        android:textSize="18sp"
         app:layout_constraintTop_toBottomOf="@id/welcome_text"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
@@ -64,14 +56,14 @@
         android:id="@+id/tagline_text"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="18dp"
         android:fontFamily="sans-serif"
         android:gravity="center"
-        android:lineSpacingMultiplier="1.55"
-        android:maxWidth="300dp"
+        android:lineSpacingMultiplier="1.35"
+        android:maxWidth="280dp"
         android:text="Create systems to build\nstrong habits"
-        android:textColor="#FFFFFFFF"
-        android:textSize="17sp"
+        android:textColor="@color/serene_text_secondary"
+        android:textSize="15sp"
         app:layout_constraintTop_toBottomOf="@id/welcome_subtext"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
@@ -79,18 +71,19 @@
     <Button
         android:id="@+id/continue_button"
         android:layout_width="0dp"
-        android:layout_height="56dp"
-        android:text="CONTINUE"
+        android:layout_height="54dp"
+        android:text="Continue"
         android:textColor="@color/ob_button_text"
-        android:textSize="15sp"
+        android:textSize="14sp"
         android:textStyle="bold"
-        android:letterSpacing="0.08"
+        android:letterSpacing="0.03"
+        android:textAllCaps="false"
         android:background="@drawable/button_onboarding_white"
         android:elevation="0dp"
         android:stateListAnimator="@null"
         app:layout_constraintTop_toTopOf="@id/gl_button"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintWidth_percent="0.82" />
+        app:layout_constraintWidth_percent="0.86" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

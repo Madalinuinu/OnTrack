@@ -9,9 +9,7 @@ import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
-import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.DecelerateInterpolator
-import android.view.animation.OvershootInterpolator
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
@@ -32,7 +30,6 @@ class OnboardingActivity : AppCompatActivity() {
     private lateinit var nameInput: EditText
 
     private var isNameStep = false
-    private var pulseAnim: AnimatorSet? = null
     private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,7 +44,7 @@ class OnboardingActivity : AppCompatActivity() {
         nameInput        = findViewById(R.id.name_input)
 
         nameInput.visibility = View.GONE
-        getStartedButton.text = "GET STARTED"
+        getStartedButton.text = "Get started"
         getStartedButton.isEnabled = true
 
         nameInput.addTextChangedListener(object : TextWatcher {
@@ -68,13 +65,11 @@ class OnboardingActivity : AppCompatActivity() {
         playEntrance()
 
         getStartedButton.setOnClickListener {
-            pulseAnim?.cancel()
-            pulseAnim = null
             scope.launch {
                 if (!isNameStep) {
                     isNameStep = true
                     revealNameInput()
-                    getStartedButton.text = "CONTINUE"
+                    getStartedButton.text = "Continue"
                     getStartedButton.isEnabled = false
                     getStartedButton.alpha = 0.62f
                     return@launch
@@ -92,7 +87,6 @@ class OnboardingActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        pulseAnim?.cancel()
         scope.cancel()
     }
 
@@ -117,8 +111,6 @@ class OnboardingActivity : AppCompatActivity() {
         h.postDelayed({ animateText(welcomeSubtext) },    390)
         h.postDelayed({ animateText(taglineText) },       560)
         h.postDelayed({ animateButtonIn() },              760)
-        // Dupa ce toate elementele au aparut, butonul incepe sa pulseze subtil
-        h.postDelayed({ startButtonPulse() },            1700)
     }
 
     /** Fade + slide-up + scale pentru texte — efect de "materializare" */
@@ -135,40 +127,18 @@ class OnboardingActivity : AppCompatActivity() {
         }
     }
 
-    /** Fade + slide-up + overshoot spring pe buton */
+    /** Fade + slide-up simplu pentru buton */
     private fun animateButtonIn() {
-        val spring   = OvershootInterpolator(2.4f)
-        val decel    = DecelerateInterpolator(1.2f)
+        val decel = DecelerateInterpolator(1.4f)
         AnimatorSet().apply {
             playTogether(
-                anim(getStartedButton, View.ALPHA,         0f,    1f,  700, decel),
-                anim(getStartedButton, View.TRANSLATION_Y, 56f,   0f,  700, decel),
-                anim(getStartedButton, View.SCALE_X,       0.82f, 1f,  750, spring),
-                anim(getStartedButton, View.SCALE_Y,       0.82f, 1f,  750, spring)
+                anim(getStartedButton, View.ALPHA,         0f,    1f,  420, decel),
+                anim(getStartedButton, View.TRANSLATION_Y, 56f,   0f,  420, decel),
+                anim(getStartedButton, View.SCALE_X,       0.94f, 1f,  420, decel),
+                anim(getStartedButton, View.SCALE_Y,       0.94f, 1f,  420, decel)
             )
             start()
         }
-    }
-
-    /**
-     * Puls subtil continuu pe buton — scale 1.0 ↔ 1.025 cu ritm de respiratie.
-     * Invita utilizatorul sa apese fara sa deranjeze.
-     */
-    private fun startButtonPulse() {
-        val breathe = AccelerateDecelerateInterpolator()
-        val px = ObjectAnimator.ofFloat(getStartedButton, View.SCALE_X, 1f, 1.025f).apply {
-            duration     = 1100
-            repeatCount  = ObjectAnimator.INFINITE
-            repeatMode   = ObjectAnimator.REVERSE
-            interpolator = breathe
-        }
-        val py = ObjectAnimator.ofFloat(getStartedButton, View.SCALE_Y, 1f, 1.025f).apply {
-            duration     = 1100
-            repeatCount  = ObjectAnimator.INFINITE
-            repeatMode   = ObjectAnimator.REVERSE
-            interpolator = breathe
-        }
-        pulseAnim = AnimatorSet().also { it.playTogether(px, py); it.start() }
     }
 
     /** Reveal camp de nume cu fade + scale + slide */

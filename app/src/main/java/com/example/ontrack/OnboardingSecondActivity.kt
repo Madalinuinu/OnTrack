@@ -7,9 +7,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.View
-import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.DecelerateInterpolator
-import android.view.animation.OvershootInterpolator
 import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -28,7 +26,6 @@ class OnboardingSecondActivity : AppCompatActivity() {
     private lateinit var taglineText: TextView
     private lateinit var continueButton: Button
 
-    private var pulseAnim: AnimatorSet? = null
     private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -49,7 +46,6 @@ class OnboardingSecondActivity : AppCompatActivity() {
         playEntrance()
 
         continueButton.setOnClickListener {
-            pulseAnim?.cancel()
             startActivity(Intent(this@OnboardingSecondActivity, MainActivity::class.java))
             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
             finish()
@@ -58,7 +54,6 @@ class OnboardingSecondActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        pulseAnim?.cancel()
         scope.cancel()
     }
 
@@ -81,7 +76,6 @@ class OnboardingSecondActivity : AppCompatActivity() {
         h.postDelayed({ animateText(welcomeSubtext) },   390)
         h.postDelayed({ animateText(taglineText) },      560)
         h.postDelayed({ animateButtonIn() },             760)
-        h.postDelayed({ startButtonPulse() },           1700)
     }
 
     private fun animateText(view: View) {
@@ -98,34 +92,16 @@ class OnboardingSecondActivity : AppCompatActivity() {
     }
 
     private fun animateButtonIn() {
-        val spring = OvershootInterpolator(2.4f)
-        val decel  = DecelerateInterpolator(1.2f)
+        val decel  = DecelerateInterpolator(1.4f)
         AnimatorSet().apply {
             playTogether(
-                anim(continueButton, View.ALPHA,         0f,    1f,  700, decel),
-                anim(continueButton, View.TRANSLATION_Y, 56f,   0f,  700, decel),
-                anim(continueButton, View.SCALE_X,       0.82f, 1f,  750, spring),
-                anim(continueButton, View.SCALE_Y,       0.82f, 1f,  750, spring)
+                anim(continueButton, View.ALPHA,         0f,    1f,  420, decel),
+                anim(continueButton, View.TRANSLATION_Y, 56f,   0f,  420, decel),
+                anim(continueButton, View.SCALE_X,       0.94f, 1f,  420, decel),
+                anim(continueButton, View.SCALE_Y,       0.94f, 1f,  420, decel)
             )
             start()
         }
-    }
-
-    private fun startButtonPulse() {
-        val breathe = AccelerateDecelerateInterpolator()
-        val px = ObjectAnimator.ofFloat(continueButton, View.SCALE_X, 1f, 1.025f).apply {
-            duration     = 1100
-            repeatCount  = ObjectAnimator.INFINITE
-            repeatMode   = ObjectAnimator.REVERSE
-            interpolator = breathe
-        }
-        val py = ObjectAnimator.ofFloat(continueButton, View.SCALE_Y, 1f, 1.025f).apply {
-            duration     = 1100
-            repeatCount  = ObjectAnimator.INFINITE
-            repeatMode   = ObjectAnimator.REVERSE
-            interpolator = breathe
-        }
-        pulseAnim = AnimatorSet().also { it.playTogether(px, py); it.start() }
     }
 
     // ─── Helper ───────────────────────────────────────────────────────────────

@@ -8,8 +8,8 @@
     </style>
     
     <style name="Theme.Splash" parent="Theme.AppCompat.Light.NoActionBar">
-        <!-- windowBackground solid = preview instant fara flash la cold start -->
-        <item name="android:windowBackground">@color/serene_background_primary</item>
+        <!-- Keep only static splash at launch -->
+        <item name="android:windowBackground">@drawable/splash_screen</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>

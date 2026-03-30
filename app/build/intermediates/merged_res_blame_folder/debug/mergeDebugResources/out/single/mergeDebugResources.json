@@ -24,10 +24,6 @@
         "source": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-main-68:\\drawable\\ic_launcher_background.xml"
     },
     {
-        "merged": "com.example.ontrack.app-debug-66:/drawable_input_onboarding.xml.flat",
-        "source": "com.example.ontrack.app-main-68:/drawable/input_onboarding.xml"
-    },
-    {
         "merged": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-debug-66:\\drawable_ic_launcher_foreground_icon.xml.flat",
         "source": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-main-68:\\drawable\\ic_launcher_foreground_icon.xml"
     },
@@ -112,10 +108,6 @@
         "source": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-main-68:\\drawable\\onboarding_rings.xml"
     },
     {
-        "merged": "com.example.ontrack.app-debug-66:/drawable_button_onboarding_white.xml.flat",
-        "source": "com.example.ontrack.app-main-68:/drawable/button_onboarding_white.xml"
-    },
-    {
         "merged": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-debug-66:\\xml_backup_rules.xml.flat",
         "source": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-main-68:\\xml\\backup_rules.xml"
     },
@@ -128,12 +120,12 @@
         "source": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-main-68:\\drawable\\onboarding_cloud_wide.xml"
     },
     {
-        "merged": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-debug-66:\\drawable_splash_gradient.xml.flat",
-        "source": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-main-68:\\drawable\\splash_gradient.xml"
-    },
-    {
         "merged": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-debug-66:\\drawable_button_onboarding_white.xml.flat",
         "source": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-main-68:\\drawable\\button_onboarding_white.xml"
+    },
+    {
+        "merged": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-debug-66:\\drawable_splash_gradient.xml.flat",
+        "source": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-main-68:\\drawable\\splash_gradient.xml"
     },
     {
         "merged": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-debug-66:\\drawable_onboarding_cloud_left.xml.flat",
@@ -158,6 +150,10 @@
     {
         "merged": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-debug-66:\\drawable_ic_launcher_foreground.xml.flat",
         "source": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-main-68:\\drawable\\ic_launcher_foreground.xml"
+    },
+    {
+        "merged": "com.example.ontrack.app-debug-66:/layout_activity_onboarding_2nd.xml.flat",
+        "source": "com.example.ontrack.app-main-68:/layout/activity_onboarding_2nd.xml"
     },
     {
         "merged": "C:\\Users\\Madalin\\.gradle\\daemon\\8.13\\com.example.ontrack.app-debug-66:\\drawable_splash_gradient_serene.xml.flat",
